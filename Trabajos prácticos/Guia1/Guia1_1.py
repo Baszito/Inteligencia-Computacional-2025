@@ -6,5 +6,7 @@ perceptron = PerceptronSimple("Guia1/OR_trn.csv", "Guia1/OR_trn.csv", "Guia1/OR_
 # Se invoca el método train() que entrena los datos datos en los archivos .csv
 perceptron.train()
 
+print(perceptron.w)
+
 # Una vez entrenado el perceptrón, se prueba con los datos de testing.
 perceptron.test_data()

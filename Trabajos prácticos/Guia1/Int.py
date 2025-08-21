@@ -35,7 +35,7 @@ class Int(ABC):
         self.y_tst: np.ndarray = y_t[1]
     def trn_rows(self):
         return self.y_trn.shape[0]
-    def cols(self):
+    def trn_cols(self):
         return self.x_trn.shape[1]
     def tes_rows(self):
         return self.y_tst.shape[0]
@@ -49,7 +49,7 @@ class Int(ABC):
         self.gamma = gamma
         self.max_iterations = max_iterations
         self.success_rate_criteria = success_rate
-        self.w = np.random.rand(1, self.cols()) - 0.5*np.ones((1, self.cols())) # Genera el vector de w's
+        self.w = np.random.rand(1, self.trn_cols()) - 0.5*np.ones((1, self.trn_cols())) # Genera el vector de w's
         self.w = self.w.ravel()
 
     # El siguiente método abstracto es para definir la función sigmoide.
@@ -95,21 +95,23 @@ class Int(ABC):
     def train(self) -> None:
         
         for i in range(0, self.max_iterations):
+            # Entrenamiento.
             for j in range(0, self.trn_rows()):
                 y_real = self.y_trn[j]
                 y_calculado = self.output(self.x_trn[j]) # Paso 1) Consigue el y(n)
                 self.update_w(self.x_trn[j], y_calculado, y_real)   # Paso 2) Actualiza el w(n) a w(n+1)
             success_rate = self.success_rate("val")
+            # Validación.
             if success_rate >= self.success_rate_criteria:
-                print("Se ha alcanzado un criterio de éxito de " + str(success_rate*100) + "%, que es mayor o igual a " + str(self.success_rate_criteria*100) + "% por lo tanto se frena el entrenamiento en la iteración número " + str(i))
-                print("🚀🚀🚀 🔥🔥🔥 😎😎😎")
+                print("Se ha alcanzado un criterio de éxito de " + str(success_rate*100) + "%, que es mayor o igual a " + str(self.success_rate_criteria*100) + "% por lo tanto se frena el entrenamiento en la época número " + str(i))
+                
                 return
-        print("Se ha alcanzado el número máximo de iteraciones y no se ha alcanzado el criterio de éxito esperado 😞")
+        print("Se ha alcanzado el número máximo de iteraciones y no se ha alcanzado el criterio de éxito esperado")
         print("El criterio obtenido fue de " + str(success_rate*100) + "% y el esperado es de " + str(self.success_rate_criteria*100) + "%")
     def test_data(self) -> None:
         success_rate = self.success_rate("tst")
         print("El criterio de éxito en los patrones de prueba es: " + str(success_rate*100) + "% !!!")
         if (success_rate >= self.success_rate_criteria):
-            print("Superó el " + str(self.success_rate_criteria*100) + "%, habéis pasado la prueba 😎")
+            print("Superó el " + str(self.success_rate_criteria*100) + "%, pasaron la prueba")
         else:
-            print("No superó el " + str(self.success_rate_criteria*100) + "%, no habéis pasado la prueba 😞")
+            print("No superó el " + str(self.success_rate_criteria*100) + "%, no pasaron la prueba")
