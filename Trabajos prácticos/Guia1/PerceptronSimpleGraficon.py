@@ -10,7 +10,7 @@ class PerceptronSimpleGraficon(PerceptronSimple):
     counter = 0
     def update_w(self, x_datos, y_calculado, y_real):
         self.w = self.w + (self.gamma / 2)*float((int(y_real) - int(y_calculado))) * x_datos
-        if (self.counter % 50 == 0):
+        if (self.counter % 15 == 0):
             fig, ax = plt.subplots()             # Create a figure containing a single Axes.
             xc = np.linspace(-1, 1, 100)
             yes = []
