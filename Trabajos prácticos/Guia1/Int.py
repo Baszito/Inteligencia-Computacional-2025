@@ -52,9 +52,9 @@ class Int(ABC):
         self.w = np.random.rand(1, self.trn_cols()) - 0.5*np.ones((1, self.trn_cols())) # Genera el vector de w's
         self.w = self.w.ravel()
 
-    # El siguiente método abstracto es para definir la función sigmoide.
+    # El siguiente método abstracto es para definir la función de activacion.
     @abstractmethod
-    def sigmoid(self, v):
+    def activation(self, v):
         pass
         
     # El siguiente método abstracto define el w(n+1)
@@ -64,7 +64,7 @@ class Int(ABC):
     
     # El siguiente método define la salida de datos.
     def output(self, x) -> float:
-        return self.sigmoid((np.dot(self.w, x)))
+        return self.activation((np.dot(self.w, x)))
 
     # El siguiente método devuelve el ratio de éxito de nuestro predictor.
     def _success_rate_from_data(self, x_data, y_data) -> float:

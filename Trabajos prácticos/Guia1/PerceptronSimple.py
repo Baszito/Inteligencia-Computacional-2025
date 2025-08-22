@@ -7,7 +7,7 @@ from sgn import sgn
 class PerceptronSimple(Int):
     # 2)
     # Se implementan las funciones "sigmoid" y "update_w"
-    def sigmoid(self, v):
+    def activation(self, v):
         return sgn(v)
     def update_w(self, x_datos, y_calculado, y_real):
         self.w = self.w + (self.gamma / 2)*float((int(y_real) - int(y_calculado))) * x_datos
