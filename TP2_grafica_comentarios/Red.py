@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from Capa import Capa
+from sgn import sgn
 
 #Red es la clase que se encargara de manejar la informacion entre capas
 class Red:
@@ -57,20 +58,25 @@ class Red:
         X = datos[:, :-1]   # entradas
         Y = datos[:, -1]    # salida deseada
         
+        N = X.shape[0]
         #Asegurar que Y sea columna
         Y = Y.reshape(-1, 1)
+        
+        
+        #Analizamos patron por patron
         
         #Inicia el proceso de entrenamiento:
         #Por cada epoca...
         for epoca in range(epocas):
             error_total = 0
+            aciertos = 0
             #Por cada patron...
             for i in range(len(X)):
                 # Forward
                 xTemp = X[i]
                 y_pred = self.forward(xTemp.reshape(1, -1))
                 # Error cuadrático instantaneo
-                error_total += (1/2)*np.mean((Y[i] - y_pred) ** 2)
+                error_total += (1/len(X))*np.mean((Y[i] - y_pred) ** 2)
 
                 # Backward
                 self.backward(Y[i])
@@ -78,17 +84,47 @@ class Red:
                 # Actualizar pesos
                 self.actualizar_pesos(u)
 
+            
             #Calculamos el error promedio de la epoca y lo agregamos al vector de errores
-            error_prom = error_total / len(X)
-            self.errores.append(error_prom)
+            for i in range(N):
+                x = X[i].reshape(-1, 1)
+                y = Y[i]
+                y_pred = self.forward(x)
+                y_b = y_pred
+
+                i_max = -1
+                max = -999
+                #print(y_pred)
+                if len(y_pred) == 1:
+                    y_b[0] = sgn(y_b[0])
+                else:
+                    for z in range(0, len(y_pred)):
+                        if y_pred[z] > max:
+                            max = y_pred[z]
+                            i_max = z
+                    for z in range(0, len(y_pred)):
+                        if z == i_max:
+                            y_b[z] = 1
+                        else:
+                            y_b[z] = -1
+                
+                #print("y_b: ", y_b)
+                #print("y: ", y)
+                #ECT += (y - y_pred)**2
+                if (y==y_b):
+                    aciertos += 1
+
+            tasa_aciertos = (aciertos / N)
+            print("Tasa de acierto: " + str(tasa_aciertos))
+            self.errores.append(tasa_aciertos)
             
             #Cada 100 epocas, revisamos el error promedio
             if epoca % 100 == 0:
-                print(f"Época {epoca}, Error: {error_prom:.6f}")
+                print(f"Época {epoca}, tasa de aciertos: {tasa_aciertos:.6f}")
             
             #Si el error promedio no supera la tolerancia, el entrenamiento puede finalizar
-            if error_prom < tolerancia:
-                print("Criterio de aceptación alcanzado.")
+            if tasa_aciertos > tolerancia :
+                print("Criterio de aceptación alcanzado. Época nro: " + str(epoca))
                 break
 
     #testear prueba la red neuronal con los datos de testeo del archivo
@@ -100,22 +136,42 @@ class Red:
         datos = pd.read_csv(archivo_csv, header=None).values
         X = datos[:, :-1]
         Y = datos[:, -1]
-        er = 0
-        aciertos = 0
+        ECT = 0
+        N = X.shape[0]
         
+        aciertos = 0
         #Analizamos patron por patron
-        for i in range(len(X)):
+        for i in range(N):
+            
             x = X[i].reshape(-1, 1)
             y = Y[i]
             y_pred = self.forward(x)
-            er += (y - y_pred)**2
-            #if y_pred == y:
-            #   aciertos += 1
-        er /= 2
-        er_avg = er / len(X)
+            y_b = y_pred
+
+            
+            i_max = -1
+            max = -999
+            if (len(y_b) == 1):
+                y_b[0] = sgn(y_b[0])
+            else:
+                for z in range(0, len(y_b)):
+                    if y_b[z] > max:
+                        max = y_b[z]
+                        i_max = z
+                for z in range(0, len(y_b)):
+                    if z == i_max:
+                        y_b[z] = 1
+                    else:
+                        y_b[z] = -1
+
+            #ECT += (y - y_pred)**2
+            if (y==y_b):
+               aciertos += 1
+        ECT /= N
+        tasa_aciertos = (aciertos / N)*100
         #ratio = aciertos / len(X)
-        #print(f"Ratio de aprobación: {ratio*100:.2f}%")
-        print("El error promedio es: ", er_avg)
+        print(f"La tasa de aciertos es : {tasa_aciertos}%")
+        print("El error cuadraticos Total es: ", ECT)
         #return ratio
         
     #evolucionError muestra la grafica de la evolucion del error
