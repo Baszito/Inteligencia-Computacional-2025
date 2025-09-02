@@ -11,12 +11,20 @@ class Red:
         #arquitectura = [cant_entradas, capa_o1, capa_o2, ..., cant_salidas]
         #La cantidad de capas será len(arquitectura) - 1
         self.capas = []
+        #La cantidad de salidas será el ultimo dato de arquitectura
+        self.salidas = arquitectura[-1]
         for i in range(1, len(arquitectura)):
             #Se le pasa a cada capa la cantida de neuronas + la cantidad de neuronas de la capa anterior, que serian las entradas de la capa actual
             self.capas.append(Capa(arquitectura[i], arquitectura[i-1]))
         
         #errores sera un vector donde guardaremos los errores promedio de cada epoca en el entrenamiento
         self.errores = []
+
+        self.EC_trn = []
+        self.EC_tst = 0
+
+        self.ECT_trn=[]
+        self.ECT_tst=0
 
     #forward es el sistema de "avance" (propagacion hacia adelante)
     #Se calculan las salidas a partir de las entradas y los W de cada capa
@@ -55,16 +63,10 @@ class Red:
         datos = pd.read_csv(archivo_csv, header=None).values
         
         #Separamos las entradas de las salidas deseadas
-        X = datos[:, :-1]   # entradas
-        Y = datos[:, -1]    # salida deseada
-        
+        X = datos[:, :-self.salidas]   # entradas
+        Y = datos[:, -(self.salidas):]    # salida deseada
         N = X.shape[0]
-        #Asegurar que Y sea columna
-        Y = Y.reshape(-1, 1)
-        
-        
         #Analizamos patron por patron
-        
         #Inicia el proceso de entrenamiento:
         #Por cada epoca...
         for epoca in range(epocas):
@@ -76,7 +78,7 @@ class Red:
                 xTemp = X[i]
                 y_pred = self.forward(xTemp.reshape(1, -1))
                 # Error cuadrático instantaneo
-                error_total += (1/len(X))*np.mean((Y[i] - y_pred) ** 2)
+                #error_total += (1/len(X))*np.mean((Y[i] - y_pred) ** 2)
 
                 # Backward
                 self.backward(Y[i])
@@ -86,11 +88,18 @@ class Red:
 
             
             #Calculamos el error promedio de la epoca y lo agregamos al vector de errores
+
+            ect_inst = 0
             for i in range(N):
                 x = X[i].reshape(-1, 1)
                 y = Y[i]
+                #print("Y de los datos: ")
+                #print(y)
+
                 y_pred = self.forward(x)
                 y_b = y_pred
+                #print("Y del forward: ")
+                #print(y_b)
 
                 i_max = -1
                 max = -999
@@ -111,11 +120,15 @@ class Red:
                 #print("y_b: ", y_b)
                 #print("y: ", y)
                 #ECT += (y - y_pred)**2
-                if (y==y_b):
+                if (np.all(y==y_b)):
                     aciertos += 1
+                ect_inst += (np.dot( np.array(y) - np.array(y_pred) , np.array(y) - np.array(y_pred)))
 
             tasa_aciertos = (aciertos / N)
-            print("Tasa de acierto: " + str(tasa_aciertos))
+            self.EC_trn.append(N - aciertos)
+
+            self.ECT_trn.append(ect_inst/N)
+            #print("Tasa de acierto: " + str(tasa_aciertos))
             self.errores.append(tasa_aciertos)
             
             #Cada 100 epocas, revisamos el error promedio
@@ -134,10 +147,13 @@ class Red:
         
         #datos contendra todos los datos leidos del archivo, y luego se separan entre entradas y salidas
         datos = pd.read_csv(archivo_csv, header=None).values
-        X = datos[:, :-1]
-        Y = datos[:, -1]
-        ECT = 0
+        #Separamos las entradas de las salidas deseadas
+        X = datos[:, :-self.salidas]   # entradas
+        Y = datos[:, -(self.salidas):]    # salida deseada
+        
         N = X.shape[0]
+        
+        #N = X.shape[0]
         
         aciertos = 0
         #Analizamos patron por patron
@@ -164,14 +180,14 @@ class Red:
                     else:
                         y_b[z] = -1
 
-            #ECT += (y - y_pred)**2
-            if (y==y_b):
+            self.ECT_tst += (np.dot(y, y_pred)/2)
+            if (np.all(y==y_b)):
                aciertos += 1
-        ECT /= N
+        self.ECT_tst /= N
         tasa_aciertos = (aciertos / N)*100
         #ratio = aciertos / len(X)
         print(f"La tasa de aciertos es : {tasa_aciertos}%")
-        print("El error cuadraticos Total es: ", ECT)
+        print("El error cuadraticos Total es: ", self.ECT_tst)
         #return ratio
         
     #evolucionError muestra la grafica de la evolucion del error
@@ -179,10 +195,13 @@ class Red:
         #Eje de abscisas
         x_abs = list(range(1, len(self.errores)+1))
         
-        plt.plot(x_abs, self.errores)
+        plt.plot(x_abs, self.EC_trn,label="Error de clasificacion")
+        plt.plot(x_abs, self.ECT_trn,label="Error cuadratico Total")
         plt.xlabel("Epocas")
         plt.ylabel("Error promedio")
         plt.title("Evolución del error")
         plt.grid(True)
+        plt.legend()
         plt.show()
+    
         

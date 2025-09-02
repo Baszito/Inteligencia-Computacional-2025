@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
 from Capa import Capa
-#hola valen que ondab
-
 
 class Red:
     def __init__(self, arquitectura):
