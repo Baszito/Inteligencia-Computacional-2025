@@ -142,7 +142,7 @@ class Red:
 
     #testear prueba la red neuronal con los datos de testeo del archivo
     #Argumentos: el archivo de datos de testeo
-    def testear(self, archivo_csv):
+    def testear(self, archivo_csv, plotearClasificacion=False):
         #PREGUNTAR EL JUEVES POR CRITERIOS DE ERROR EN TESTEO
         
         #datos contendra todos los datos leidos del archivo, y luego se separan entre entradas y salidas
@@ -153,8 +153,8 @@ class Red:
         
         N = X.shape[0]
         
-        #N = X.shape[0]
-        
+        y_resultados = []
+
         aciertos = 0
         #Analizamos patron por patron
         for i in range(N):
@@ -163,7 +163,8 @@ class Red:
             y = Y[i]
             y_pred = self.forward(x)
             y_b = y_pred
-
+            
+            y_resultados.append(y_b)
             
             i_max = -1
             max = -999
@@ -185,10 +186,29 @@ class Red:
                aciertos += 1
         self.ECT_tst /= N
         tasa_aciertos = (aciertos / N)*100
+
+        # Este es probablemente el peor codigo escrito por la humanidad, ya se.
+        x1_1 = []
+        x2_1 = []
+        
+        x1_2 = []
+        x2_2 = []
+        for i in range(N):
+            if y_resultados[i][0] == 1:
+                x1_1.append(X[i][0])
+                x2_1.append(X[i][1])
+            else:
+                x1_2.append(X[i][0])
+                x2_2.append(X[i][1])
+
         #ratio = aciertos / len(X)
         print(f"La tasa de aciertos es : {tasa_aciertos}%")
         print("El error cuadraticos Total es: ", self.ECT_tst)
-        #return ratio
+        if plotearClasificacion == True:
+
+            plt.scatter(x1_1, x2_1, marker='o')
+            plt.scatter(x1_2, x2_2, marker='*')
+            plt.show()
         
     #evolucionError muestra la grafica de la evolucion del error
     def evolucionError(self):
@@ -203,5 +223,4 @@ class Red:
         plt.grid(True)
         plt.legend()
         plt.show()
-    
-        
+
