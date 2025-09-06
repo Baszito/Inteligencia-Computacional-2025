@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 # El criterio de la estructura más apropiada es de carácter ambiguo.
 
 # Se explorarán diferentes soluciones.
-#red = Red([2, 8, 1])
+#red = Red([2, 2, 1])
 
-#red = Red([2, 4, 3, 1])
+#red = Red([2, 2, 2, 1])
 
-red = Red([2, 3, 3, 1]) # Ligeramente mas rapido que los anteriores
+#red = Red([2, 3, 3, 1]) # Ligeramente mas rapido que los anteriores
 
 #red = Red([2, 3, 3, 3, 1])
 

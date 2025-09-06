@@ -16,6 +16,9 @@ red_4 = Red([4, 3, 3, 3, 3])
 
 red_5 = Red([4, 15, 5, 5, 3])
 
+red_6  = Red([4, 6, 3])
+
+
 
 #Entrenamos la red con el metodo "entrenar" que recibe:   El archivo de datos de entrenamiento;
 #                                                         Cantidad maxima de epocas;
@@ -41,21 +44,24 @@ red_5 = Red([4, 15, 5, 5, 3])
 
 
 # 1 sola capa oculta, anda generalmente lento.
-#red_3.entrenar("TP2_grafica_comentarios/iris81_trn.csv", 1000, 0.01, 0.95)
-#red_3.testear("TP2_grafica_comentarios/iris81_tst.csv")
-#red_3.evolucionError()
+red_3.entrenar("TP2_grafica_comentarios/iris81_trn.csv", 1000, 0.05, 0.95)
+red_3.testear("TP2_grafica_comentarios/iris81_tst.csv")
+red_3.evolucionError()
 
 # Es el más lento de todos. A veces funciona un poquito bien.
-red_4.entrenar("TP2_grafica_comentarios/iris81_trn.csv", 1000, 0.03, 0.95)
-red_4.testear("TP2_grafica_comentarios/iris81_tst.csv")
-red_4.evolucionError()
+# red_4.entrenar("TP2_grafica_comentarios/iris81_trn.csv", 1000, 0.03, 0.95)
+# red_4.testear("TP2_grafica_comentarios/iris81_tst.csv")
+# red_4.evolucionError()
 
 # Bastante decente, tiene un número alto de tasas de aciertos y relativamente buena velocidad de convergencia.
 #red_5.entrenar("TP2_grafica_comentarios/iris81_trn.csv", 1000, 0.01, 0.95)
 #red_5.testear("TP2_grafica_comentarios/iris81_tst.csv")
 #red_5.evolucionError()
 
-
+# Bastante decente. Se dividen 6 las graficas presentadas con 6 planos.
+#red_6.entrenar("TP2_grafica_comentarios/iris81_trn.csv", 1000, 0.01, 0.95)
+#red_6.testear("TP2_grafica_comentarios/iris81_tst.csv")
+#red_6.evolucionError()
 
 # Observaciones generales:
 
