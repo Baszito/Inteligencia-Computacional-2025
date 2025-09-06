@@ -15,15 +15,15 @@ X_trn, X_tst, y_trn, y_tst = train_test_split(X, y, test_size=0.2, shuffle=True)
 #hidden_layer_sizes = (_, _) funciona como "arquitectura" en la guia 2. Es un arreglo, donde cada elemento es la cant de neuronas de cada capa
 #                                                                                       y la cantidad de elementos es la cantidad de capas ocultas
 #Cantidad de epocas maximas = 1000
-clf = MLPClassifier(hidden_layer_sizes=(3, 1), max_iter=1000)
+clf = MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=10000)
 #Funcion de entrenamiento del perceptron
 clf.fit(X_trn, y_trn)
 #Calculamos las salidas del perceptron en base a los datos de testeo
 y_calculado = clf.predict(X_tst)
 
-#Presicion (tasa de aciertos) del perceptron
-presicion_P_unica = accuracy_score(y_tst, y_calculado)
-print("Precisión con una unica particion:", presicion_P_unica)
+#Precision (tasa de aciertos) del perceptron
+precision_P_unica = accuracy_score(y_tst, y_calculado)
+print("Precisión con una unica particion:", precision_P_unica)
 
 #----------------------------------------------------------------------------------------------------------------------------#
 #----------------------------------------------------------------------------------------------------------------------------#
@@ -48,7 +48,7 @@ def evaluar_con_KFold(X, y, k):
         #hidden_layer_sizes = (_, _) funciona como "arquitectura" en la guia 2. Es un arreglo, donde cada elemento es la cant de neuronas de cada capa
                                                                                 #y la cantidad de elementos es la cantidad de capas ocultas
         #Cantidad de epocas maximas = 1000
-        clf = MLPClassifier(hidden_layer_sizes=(3, 1), max_iter=1000)
+        clf = MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=10000)
         #Entrenamos el perceptron
         clf.fit(X_trn, y_trn)
         #Calculamos la salida en base al perceptron armado
