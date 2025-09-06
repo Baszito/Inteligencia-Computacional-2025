@@ -50,6 +50,7 @@ def evaluar_con_KFold(X, y, k, Hidden_layer_sizes, que_metodo):
         if que_metodo == "BAGGING_SVC":
             clf = BaggingClassifier(estimator=SVC(), n_estimators=20)
         if que_metodo == "BAGGING":
+            
             clf = BaggingClassifier(estimator=LinearDiscriminantAnalysis(), n_estimators=20)
         if que_metodo == "ADABOOST":
             clf = AdaBoostClassifier(n_estimators=20)
@@ -64,6 +65,9 @@ def evaluar_con_KFold(X, y, k, Hidden_layer_sizes, que_metodo):
     return np.mean(tasas_de_acierto), np.var(tasas_de_acierto)
 
 media_5_bagging_svc, varianza_5_bagging_svc = evaluar_con_KFold(X, Y, 5, (64, 32), "BAGGING_SVC")
+
+
+# DEJAMOS EL ADL PORQUE PROBANDO FUE EL QUE MEJOR ANDUVO
 media_5_bagging, varianza_5_bagging = evaluar_con_KFold(X, Y, 5, (64, 32), "BAGGING")
 media_5_adaboost, varianza_5_adaboost = evaluar_con_KFold(X, Y, 5, (64, 32), "ADABOOST")
 

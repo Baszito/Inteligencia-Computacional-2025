@@ -86,3 +86,4 @@ print("Varianza media con máquinas de soporte vectorial y 5 particiones:", vari
 
 
 
+
