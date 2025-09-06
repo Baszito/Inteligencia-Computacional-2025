@@ -30,7 +30,7 @@ print("Precisión con una unica particion:", precision_P_unica)
 #----------------------------------------------------------------------------------------------------------------------------#
 
 #Por comodidad (y no repetir codigo al pedo), el entrenamiento y testeo de cada KFlod lo hacemos en una funcion
-def evaluar_con_KFold(X, y, k):
+def evaluar_con_KFold(X, y, k, Hidden_layer_sizes):
     #k es el numero de particiones que vamos a generar (Se divide la totalidad de los datos en k partes)
     #Shuffle = True hace que los patrones generados se mezclen, evitando que podamos agarrar patrones con la misma salida deseada
     #Hay otro parametro que se puede agregar llamado "random_state", que es una semilla que nos permite controlar la aleatoriedad de los resultados
@@ -48,7 +48,7 @@ def evaluar_con_KFold(X, y, k):
         #hidden_layer_sizes = (_, _) funciona como "arquitectura" en la guia 2. Es un arreglo, donde cada elemento es la cant de neuronas de cada capa
                                                                                 #y la cantidad de elementos es la cantidad de capas ocultas
         #Cantidad de epocas maximas = 1000
-        clf = MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=10000)
+        clf = MLPClassifier(hidden_layer_sizes=Hidden_layer_sizes, max_iter=10000)
         #Entrenamos el perceptron
         clf.fit(X_trn, y_trn)
         #Calculamos la salida en base al perceptron armado
@@ -61,9 +61,9 @@ def evaluar_con_KFold(X, y, k):
     return np.mean(tasas_de_acierto), np.var(tasas_de_acierto)
 
 # KFold con 5 particiones
-media_5, varianza_5 = evaluar_con_KFold(X, y, 5)
+media_5, varianza_5 = evaluar_con_KFold(X, y, 5, (64, 32))
 print(f"KFold(5) - media: {media_5:.4f}, varianza: {varianza_5:.6f}")
 
 # KFold con 10 particiones
-media_10, varianza_10 = evaluar_con_KFold(X, y, 10)
+media_10, varianza_10 = evaluar_con_KFold(X, y, 10, (64, 32))
 print(f"KFold(10) - media: {media_10:.4f}, varianza: {varianza_10:.6f}")
