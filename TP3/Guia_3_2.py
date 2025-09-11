@@ -11,6 +11,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score
 import numpy as np
+import matplotlib.pyplot as plt
 
 def evaluar_con_KFold(X, y, k, Hidden_layer_sizes, que_metodo):
     #k es el numero de particiones que vamos a generar (Se divide la totalidad de los datos en k partes)
@@ -37,6 +38,9 @@ def evaluar_con_KFold(X, y, k, Hidden_layer_sizes, que_metodo):
             clf = GaussianNB()
         if que_metodo == "NN":
             clf = KNeighborsClassifier(n_neighbors=3)
+        #En este metodo, proyectamos los datos de una alta dimension a una dimension inferior donde las clases se separen claramente.
+        #Usamos alguna "funcion discriminante" para determinar la distancia de un patron X a la media de una clase, teniendo en cuenta su varianza
+        #Se asume que las clases tienen la misma matriz de covarianza
         if que_metodo == "LDA":
             clf = LinearDiscriminantAnalysis()
         if que_metodo == "DTC":
@@ -87,3 +91,34 @@ print("Varianza media con máquinas de soporte vectorial y 5 particiones:", vari
 
 
 
+plt.style.use('_mpl-gallery')
+
+# plot
+fig, ax = plt.subplots()
+x = np.arange(6)
+y=[media_5_mlp,media_5_gnb,media_5_lda,media_5_nn,media_5_dtc,media_5_svc]
+ax.bar(x, y, width=0.8, edgecolor="white", linewidth=0.7)
+labels = ["MLP", "GNB", "LDA", "NN", "DTC", "SVC"]
+ax.set_xticks(x)
+ax.set_xticklabels(labels)
+
+ax.set(xlim=(-0.5, 5.5), xticks=np.arange(6),
+       ylim=(0, 1), yticks=np.linspace(0,1,30))
+
+plt.show()
+
+plt.style.use('_mpl-gallery')
+
+# plot
+fig, ax = plt.subplots()
+x = np.arange(6)
+y=[varianza_5_mlp,varianza_5_gnb,varianza_5_lda,varianza_5_nn,varianza_5_dtc,varianza_5_svc]
+ax.bar(x, y, width=0.8, edgecolor="white", linewidth=0.7)
+labels = ["MLP", "GNB", "LDA", "NN", "DTC", "SVC"]
+ax.set_xticks(x)
+ax.set_xticklabels(labels)
+
+ax.set(xlim=(-0.5, 5.5), xticks=np.arange(6),
+       ylim=(0, 0.0009), yticks=np.linspace(0,0.0009,30))
+
+plt.show()

@@ -13,6 +13,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.ensemble import BaggingClassifier
 from sklearn.ensemble import AdaBoostClassifier
 import numpy as np
+import matplotlib.pyplot as plt
 
 X, Y = load_wine(return_X_y=True)
 
@@ -49,11 +50,14 @@ def evaluar_con_KFold(X, y, k, Hidden_layer_sizes, que_metodo):
             clf = make_pipeline(StandardScaler(), SVC(gamma='auto'))
         if que_metodo == "BAGGING_SVC":
             clf = BaggingClassifier(estimator=SVC(), n_estimators=20)
-        if que_metodo == "BAGGING":
-            
+        if que_metodo == "BAGGING_DTC":
+            clf = BaggingClassifier(estimator=DecisionTreeClassifier(), n_estimators=20)
+        if que_metodo == "BAGGING_LDA":
             clf = BaggingClassifier(estimator=LinearDiscriminantAnalysis(), n_estimators=20)
-        if que_metodo == "ADABOOST":
-            clf = AdaBoostClassifier(n_estimators=20)
+        if que_metodo == "ADABOOST_DTC":
+            clf = AdaBoostClassifier(estimator=DecisionTreeClassifier(), n_estimators=20)
+        if que_metodo == "ADABOOST_SVC":
+            clf = AdaBoostClassifier(estimator=SVC(),n_estimators=20)
         #Entrenamos el perceptron
         clf.fit(X_trn, y_trn)
         #Calculamos la salida en base al perceptron armado
@@ -64,21 +68,54 @@ def evaluar_con_KFold(X, y, k, Hidden_layer_sizes, que_metodo):
     #Retornamos la media y la varianza de las tasas de aciertos para el analisis
     return np.mean(tasas_de_acierto), np.var(tasas_de_acierto)
 
+media_5_bagging_dtc, varianza_5_bagging_dtc = evaluar_con_KFold(X, Y, 5, (64, 32), "BAGGING_DTC")
+media_5_bagging_lda, varianza_5_bagging_lda = evaluar_con_KFold(X, Y, 5, (64, 32), "BAGGING_LDA")
 media_5_bagging_svc, varianza_5_bagging_svc = evaluar_con_KFold(X, Y, 5, (64, 32), "BAGGING_SVC")
+media_5_adaboost_dtc, varianza_5_adaboost_dtc = evaluar_con_KFold(X, Y, 5, (64, 32), "ADABOOST_DTC")
+media_5_adaboost_svc, varianza_5_adaboost_svc = evaluar_con_KFold(X, Y, 5, (64, 32), "ADABOOST_SVC")
 
 
-# DEJAMOS EL ADL PORQUE PROBANDO FUE EL QUE MEJOR ANDUVO
-media_5_bagging, varianza_5_bagging = evaluar_con_KFold(X, Y, 5, (64, 32), "BAGGING")
-media_5_adaboost, varianza_5_adaboost = evaluar_con_KFold(X, Y, 5, (64, 32), "ADABOOST")
 
-
+print("MEDIA DE BAGGING CON DTC (5 PARTICIONES): ", media_5_bagging_dtc)
+print("VARIANZA DE BAGGING CON DTC (5 PARTICIONES): ", varianza_5_bagging_dtc)
+###En multiples pruebas, LDA nos dio el mejor resultado con bagging
+###lamentablemente no es compatible con adaboost, por un tema de los pesos en las librerias
+print("MEDIA DE BAGGING CON LDA (5 PARTICIONES): ", media_5_bagging_lda)
+print("VARIANZA DE BAGGING CON LDA (5 PARTICIONES): ", varianza_5_bagging_lda)
 print("MEDIA DE BAGGING CON SVC (5 PARTICIONES): ", media_5_bagging_svc)
 print("VARIANZA DE BAGGING CON SVC (5 PARTICIONES): ", varianza_5_bagging_svc)
 
-print("MEDIA DE BAGGING CON ANÁLISIS DISCRIMANTE LINEAL (5 PARTICIONES): ", media_5_bagging)
-print("VARIANZA DE BAGGING CON ANÁLISIS DISCRIMANTE LINEAL (5 PARTICIONES): ", varianza_5_bagging)
+print("MEDIA DE ADABOOST CON DTC (5 PARTICIONES): ", media_5_adaboost_dtc)
+print("VARIANZA DE ADABOOST CON DTC (5 PARTICIONES): ", varianza_5_adaboost_dtc)
+print("MEDIA DE ADABOOST CON SVC (5 PARTICIONES): ", media_5_adaboost_svc)
+print("VARIANZA DE ADABOOST CON SVC (5 PARTICIONES): ", varianza_5_adaboost_svc)
 
-print("MEDIA DE ADABOOST (5 PARTICIONES): ", media_5_adaboost)
-print("VARIANZA DE ADABOOST (5 PARTICIONES): ", varianza_5_adaboost)
+plt.style.use('_mpl-gallery')
 
+# plot
+fig, ax = plt.subplots()
+x = np.arange(5)
+y=[media_5_bagging_dtc,media_5_bagging_lda,media_5_bagging_svc,media_5_adaboost_dtc,media_5_adaboost_svc]
+ax.bar(x, y, width=0.8, edgecolor="white", linewidth=0.7)
+labels = ["Bag_DTC","Bag_LDA", "Bag_SVC","Ada_DTC", "Ada_SVC"]
+ax.set_xticks(x)
+ax.set_xticklabels(labels)
 
+ax.set(xlim=(-0.5, 5.5), xticks=np.arange(5),
+       ylim=(0, 1), yticks=np.linspace(0,1,30))
+ax.set_label("Medias")
+plt.show()
+
+# plot
+fig, ax = plt.subplots()
+x = np.arange(5)
+y=[varianza_5_bagging_dtc,varianza_5_bagging_lda,varianza_5_bagging_svc,varianza_5_adaboost_dtc,varianza_5_adaboost_svc]
+ax.bar(x, y, width=0.8, edgecolor="white", linewidth=0.7)
+labels = ["Bag_DTC","Bag_LDA", "Bag_SVC","Ada_DTC", "Ada_SVC"]
+ax.set_xticks(x)
+ax.set_xticklabels(labels)
+
+ax.set(xlim=(-0.5, 5.5), xticks=np.arange(5),
+       ylim=(0, 0.02), yticks=np.linspace(0,0.02,30))
+ax.set_label("Medias")
+plt.show()

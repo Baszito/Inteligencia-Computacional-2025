@@ -60,6 +60,7 @@ def evaluar_con_KFold(X, y, k, Hidden_layer_sizes):
     #Retornamos la media y la varianza de las tasas de aciertos para el analisis
     return np.mean(tasas_de_acierto), np.var(tasas_de_acierto)
 
+
 # KFold con 5 particiones
 media_5, varianza_5 = evaluar_con_KFold(X, y, 5, (64, 32))
 print(f"KFold(5) - media: {media_5:.4f}, varianza: {varianza_5:.6f}")
