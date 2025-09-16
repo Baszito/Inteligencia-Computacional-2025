@@ -47,7 +47,7 @@ def evaluar_con_KFold(X, y, k, Hidden_layer_sizes):
 
         #hidden_layer_sizes = (_, _) funciona como "arquitectura" en la guia 2. Es un arreglo, donde cada elemento es la cant de neuronas de cada capa
                                                                                 #y la cantidad de elementos es la cantidad de capas ocultas
-        #Cantidad de epocas maximas = 1000
+        #Cantidad de epocas maximas = 10000
         clf = MLPClassifier(hidden_layer_sizes=Hidden_layer_sizes, max_iter=10000)
         #Entrenamos el perceptron
         clf.fit(X_trn, y_trn)
