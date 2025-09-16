@@ -15,6 +15,7 @@ import time
 class kmeans:
     def __init__(self, path_datos, k, max_epocas=1000):
         self.X = pd.read_csv(path_datos, header=None).values
+        self.X = self.X[:, :-3]
         self.ks = []
         self.max_epocas = max_epocas
         self.S = {}
@@ -36,7 +37,9 @@ class kmeans:
         Retorna:
             np.ndarray: vector de tamaño (n_entradas,)
         """
-        return np.random.uniform(-0.5, 0.5, size=self.entradas())
+        idx = np.random.randint(0, len(self.X))
+        return self.X[idx]
+    
     def graficar(self):
         plt.scatter(self.X[:, 0], self.X[:, 1])
         msize = 10
@@ -77,7 +80,10 @@ class kmeans:
 
                     pos = pos + self.X[x]
                 #if len(self.S[ind_c]) > 0:
-                pos = pos / len(self.S[ind_c])
+                if(len(self.S[ind_c]) != 0):
+                    pos = pos / len(self.S[ind_c])
+                else:
+                    pos = pos/1
                 self.ks[ind_c] = pos
                 # Ahora le asignamos al centroide esta posicion
                 #self.ks[ind_c] = pos
