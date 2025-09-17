@@ -91,14 +91,39 @@ class kmeans:
                 #self.ks[ind_c] = pos
                 ind_c += 1
             # Finalmente limpiamos los vectores en S
-            ind_c = 0
-            for c_k in self.ks:
-                self.S[ind_c] = []
-                ind_c += 1
+            if k != self.max_epocas-1:
+                ind_c = 0
+                for c_k in self.ks:
+                    self.S[ind_c] = []
+                    ind_c += 1
+                
+    def compactitud(self) -> np.ndarray:
+        self.compactitudes = []
+        it = 0
+        while it < len(self.ks):
+            self.compactitudes.append(0)
+            for i in range(0, len(self.S[it])):
+                j = self.S[it][i]
+                self.compactitudes[it] += float(np.sqrt((self.X[j] - self.ks[it]) @ (self.X[j] - self.ks[it])))
+                
+            if len(self.S[it]) == 0:
+                self.compactitudes[it] = 0
+            else:
+                self.compactitudes[it] = self.compactitudes[it]/len(self.S[it])
+                
+            it += 1
+            
+        return self.compactitudes
 
-#p = kmeans('iris81_trn.csv', 5)
-#p.entrenar()
-#p.graficar()
+p = kmeans('iris81_trn.csv', 5)
+p.entrenar()
+p.graficar()
+compac = (p.compactitud())
+
+com_tot = 0
+for i in range(0, len(compac)):
+    com_tot += compac[i]
+print(com_tot/len(compac))
 
 #som = SOM('iris81_trn.csv', 6, 6, 0.8)
 #som.entrenar()
