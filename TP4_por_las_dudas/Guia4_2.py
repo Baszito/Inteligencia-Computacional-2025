@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import time
-from Guia4_1 import SOM
+#from Guia4_1 import SOM
 
 class kmeans:
     def __init__(self, path_datos, k, max_epocas=1000):
@@ -45,7 +45,6 @@ class kmeans:
         msize = 10
         for c_k in self.ks:
             plt.plot(c_k[0], c_k[1], '*', markersize=msize, color='red')
-            print(c_k)
             msize += 3
         plt.show()
     def entrenar(self):
@@ -54,7 +53,6 @@ class kmeans:
             
             for i in range(0, self.X.shape[0]):
                 d = self.X[i]
-                print('Dato d: ', d)
                 # Para el dato 'd' computamos el centroide mas cercano
                 dist_min = 999999
                 c_mas_cercano = 0
@@ -115,7 +113,7 @@ class kmeans:
             
         return self.compactitudes
 
-p = kmeans('iris81_trn.csv', 5)
+p = kmeans('iris81_trn.csv', 3)
 p.entrenar()
 p.graficar()
 compac = (p.compactitud())
