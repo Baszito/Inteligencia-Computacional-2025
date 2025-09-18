@@ -11,6 +11,10 @@ class SOM:
         self.velocidad_entrenamiento_final = velocidad_entrenamiento_final
         self.max_epocas = max_epocas
 
+        self.patronesxN = {}
+        for i in range(0, len(self.patronesxN)):
+            self.patronesxN[i] = []
+        
         self.mapa_neuronas = []
 
         self.f = nro_filas_neuronas
@@ -125,6 +129,9 @@ class SOM:
                         continue
                     if self.esta_en_la_vecindad(radio, i_ganador, j_ganador, i, j):
                         self.actualizar(dato_random, i, j)
+                        
+    
+            
             
 
 
@@ -135,7 +142,10 @@ class SOM:
 #s.entrenar()
 
 # T 
-s = SOM('TP4/te.csv', 100, 1, 0.8)
+#s = SOM('TP4/te.csv', 10, 10, 2)
+#s.entrenar()
+# T uni
+s = SOM('TP4/te.csv', 100, 1, 2)
 s.entrenar()
 plt.ioff()
 plt.show()
