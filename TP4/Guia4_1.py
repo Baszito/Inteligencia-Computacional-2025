@@ -138,14 +138,14 @@ class SOM:
             
 
 # Circulo
-#s = SOM('TP4/circulo.csv', 10, 10, 0.8)
-#s.entrenar()
+s = SOM('TP4/circulo.csv', 10, 10, 0.8)
+s.entrenar()
 
 # T 
 #s = SOM('TP4/te.csv', 10, 10, 2)
 #s.entrenar()
 # T uni
-s = SOM('TP4/te.csv', 100, 1, 2)
-s.entrenar()
+#s = SOM('TP4/te.csv', 100, 1, 2)
+#s.entrenar()
 plt.ioff()
 plt.show()
