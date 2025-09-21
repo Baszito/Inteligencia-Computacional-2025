@@ -1,7 +1,7 @@
 # Resumen de k-medias
 
-# 1) Se elige un numero k de centroides
-# 2) se los inicializa de manera aleatoria
+# 1) Se elige un numero k de centroides (Se eligen patrones ya como centroides)
+# 2) Se los inicializa de manera aleatoria
 # 3) Por cada puntito x se mira cual centroide es el mas cercano
 # 4) Se actualiza el centroide yendo hacia el promedio de los x dentro de el.
 
@@ -56,9 +56,10 @@ class kmeans:
         Retorna:
             np.ndarray: vector de tamaño (n_entradas,)
         """
-        idx = np.random.randint(0, len(self.X))
+        idx = np.random.randint(0, len(self.X)) #Seleccionamos un patron como centroide
         return self.X[idx]
     def graficar(self):
+        #Funcion para graficar los puntos
         plt.scatter(self.X[:, 0], self.X[:, 1])
         msize = 10
         for c_k in self.ks:
@@ -66,7 +67,7 @@ class kmeans:
             print(c_k)
             msize += 3
         plt.show()
-    def get_color(self, i):
+    def get_color(self, i): #Get color, para comparar mas adelante
         return (i/len(self.ks), 0, 1 - i/len(self.ks))
     # Devuelve un índice al centroide ganador
     def get_centroide_ganador(self, i):
