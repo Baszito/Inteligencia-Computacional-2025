@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 import math
+import copy
 
 #1. Inicializar poblacion (decodificacion) (10 bits)
 #2. mejorAptitud = evaluar(poblacion) (Funcion de fitness : 1/f(x))
@@ -30,7 +31,7 @@ class Genotipo:
         return numero
     
     def get_x(self):
-        return self.bits[0:7]
+        return self.bits[0:8]
     #Mapeo lineal entre 0 y 256 de -100 a 100
     def get_x_numero(self):
         x = self.get_x()
@@ -45,17 +46,17 @@ class Genotipo:
             numero = (numero << 1) | bit  # desplazar y agregar bit
         return numero
     def get_y(self):
-        return self.bits[7:16]
+        return self.bits[8:16]
     def clamp_binario(self):
         if(self.get_y_numero()>200):
         #11001000
-            self.bits[8:15]=[1, 1, 0, 0, 1, 0, 0, 0]
+            self.bits[8:16]=[1, 1, 0, 0, 1, 0, 0, 0]
         if(self.get_x_numero()>200):
-            self.bits[0:7]=[1, 1, 0, 0, 1, 0, 0, 0]
+            self.bits[0:8]=[1, 1, 0, 0, 1, 0, 0, 0]
             
     def mutacion(self):
-        self.posibilidad_mutacion_x=0.2
-        self.posibilidad_mutacion_y=0.2
+        self.posibilidad_mutacion_x=0.3
+        self.posibilidad_mutacion_y=0.3
         self.aux_x=random.random()
         if(self.aux_x<=self.posibilidad_mutacion_x):
             randi = random.randint(0, 7)
@@ -70,40 +71,73 @@ class Genotipo:
                 self.bits[randi] = 0
             else:
                 self.bits[randi] = 1
+
+
+        #self.posibilidad_mutacion = 0.1
+        #self.aux_x=random.random()
+        #if(self.aux_x<=self.posibilidad_mutacion):
+        #    randi = random.randint(0, 15)
+        #    if (self.bits[randi] == 1):
+        #        self.bits[randi] = 0
+        #    else:
+        #        self.bits[randi] = 1
         self.clamp_binario()
             
     def __str__(self):
         return "Soy el mejor individuo"
         
 def f(x, y):
-    return ((x**2 + y**2)**(0.25))*((math.sin(50*(((x**2) + (y**2)**0.1)))**2) + 1)
-def d_f(x): #para utilizar el metodo del gradiente
-    if x == 0:  # evitar división por cero
-        print("GRADIENTE INVALIDO")
-        return float('nan')
-    return -math.sin(math.sqrt(abs(x))) - (x**2 * math.cos(math.sqrt(abs(x)))) / (2 * abs(x) * math.sqrt(abs(x)))
+    return ((x**2 + y**2)**(0.25))*((math.sin(50*((((x**2) + (y**2))**0.1)))**2) + 1)
+def d_f(x, y): #para utilizar el metodo del gradiente
+    # #if x == 0:  # evitar división por cero
+    # #    print("GRADIENTE INVALIDO")
+    # #    return float('nan')
+    # #return -math.sin(math.sqrt(abs(x))) - (x**2 * math.cos(math.sqrt(abs(x)))) / (2 * abs(x) * math.sqrt(abs(x)))
+    # d = (((x**2 + y**2)**(0.25)) * (( math.sin( 50 * ( (x**2 + y**2) ** 0.1 ) )**2 ) + 1))
+    s = x**2 + y**2
+    if s == 0:
+        return (0.0, 0.0)  # gradiente indefinido, devolvemos 0
+
+    dfdx = (0.5 * x * (math.sin(50 * (s**0.1))**2 + 1) * (s**-0.75)) + (20 * x * math.cos( 50 * (( s )**0.1) ) * math.sin( 50 * ((s)**0.1)) * ((s)**-0.65))#10 * A * (s**-0.9) * math.sin(2 * u)
+    dfdy = (0.5 * y * (math.sin(50 * (s**0.1))**2 + 1) * (s**-0.75)) + (20 * y * math.cos( 50 * (( s )**0.1) ) * math.sin( 50 * ((s)**0.1)) * ((s)**-0.65))#10 * A * (s**-0.9) * math.sin(2 * u)
+    #dfdx = x * factor
+    #dfdy = y * factor
+    return (dfdx, dfdy)
+    #return (d, d)
+
+# Punto inicial debe ser de dos dimensiones
 def metodo_gradiente_descendiente(punto_inicial, iteraciones, gamma):
-    p = punto_inicial
+    x, y = punto_inicial
     for i in range(0, iteraciones):
-        p = p - gamma*d_f(p)
-        # forzar rango [-512, 512]
-        if p < -512:
-            p = -512
-        elif p > 512:
-            p = 512
-    return p
+        dx, dy = d_f(x, y)
+        x = x - gamma*dx
+        y = y - gamma*dy
+        #p = p - gamma*d_f(p)
+        # forzar rango [-100, 100]
+        if x > 100:
+            x = 100
+        if x < -100:
+            x = -100
+
+        if y > 100:
+            y = 100
+        if y < -100:
+            y = -100
+    return (x, y)
+
 def gradiente_descendiente_global(punto_minimo,punto_maximo,cant_puntos,gamma,iteraciones):
-    puntos=[]
-    mejor_x=0
+    mejor_x=100
+    mejor_y=100
     for i in range(0,cant_puntos):
-        puntos.append(metodo_gradiente_descendiente(random.uniform(punto_minimo,punto_maximo),iteraciones,gamma))
-        if(f(mejor_x)>f(puntos[i])):
-            mejor_x=puntos[i]
-    return mejor_x
+        nuevo_x,nuevo_y=metodo_gradiente_descendiente((random.uniform(punto_minimo,punto_maximo), random.uniform(punto_minimo,punto_maximo)),iteraciones,gamma)
+        if(f(mejor_x, mejor_y)>f(nuevo_x,nuevo_y)):
+            mejor_x=nuevo_x
+            mejor_y=nuevo_y
+    return mejor_x, mejor_y
 
 class AlgEvolutivo:
     def funcion_fitness_1(self, individuo: Genotipo):
-        return 5/f(individuo.get_x_numero() - 100, individuo.get_y_numero() - 100)
+        return -f(individuo.get_x_numero() - 100, individuo.get_y_numero() - 100)
     def __init__(self,cant_genotipos,cant_bits, aptitud_requerida,max_iteraciones):
         self.poblacion=[]
         self.cant_genotipos=cant_genotipos
@@ -128,7 +162,13 @@ class AlgEvolutivo:
             self.aptitudes.append(aptitud_actual)
             if(self.mejor_aptitud<aptitud_actual):
                 self.mejor_aptitud=aptitud_actual
-                self.mejor_individuo = self.poblacion[i]
+                self.mejor_individuo = copy.deepcopy(self.poblacion[i])
+                print("x: ")
+                print(self.mejor_individuo.get_x_numero()-100)
+                print("y: ")
+                print(self.mejor_individuo.get_y_numero()-100)
+                print("f(x,y)")
+                print(f(self.mejor_individuo.get_x_numero()-100, self.mejor_individuo.get_y_numero()-100))
             if(self.peor_aptitud1>aptitud_actual):
                 self.peor_aptitud2=self.peor_aptitud1
                 self.peor_aptitud1=aptitud_actual
@@ -201,7 +241,7 @@ class AlgEvolutivo:
             for j in range(0, tam):
                 self.ruleta.append(self.aptitudes[i])
                 self.genotipos_ruleta.append(self.poblacion[i])
-        self.numerito = random.randint(0, len(self.ruleta))
+        self.numerito = random.randint(0, len(self.ruleta) - 1)
         return self.genotipos_ruleta[self.numerito]
     
     def generacion(self):
@@ -220,25 +260,33 @@ class AlgEvolutivo:
         self.poblacion.append(hijo1)
         self.poblacion.append(hijo2)
 
-        del self.poblacion[self.peor_individuo1]
-        del self.poblacion[self.peor_individuo2]
+        #del self.poblacion[self.peor_individuo1]
+        #del self.poblacion[self.peor_individuo2]
         #y actualizar al cant_genotipos
         #self.cant_genotipos += 2
         
     
     def evolucion(self):
         print("Algoritmo Evolutivo : ")
-        print("Iteraciones :")
+        #print("Iteraciones :")
         it = 0
         self.evaluar_poblacion()
+        
         for i in range(0, self.max_iteraciones):
             
-            print(str(it))
-
+            #print(str(it))
+            
             self.generacion()
             self.evaluar_poblacion()
             
             it+=1
+
+            #print("x: ")
+            #print(self.mejor_individuo.get_x_numero()-100)
+            #print("y: ")
+            #print(self.mejor_individuo.get_y_numero()-100)
+            #print("f(x,y)")
+            #print(f(self.mejor_individuo.get_x_numero()-100, self.mejor_individuo.get_y_numero()-100))
             if (self.mejor_aptitud >= self.aptitud_requerida):
                 break
             #if (abs(self.mejor_aptitud) < abs(self.aptitud_requerida)):
@@ -249,9 +297,7 @@ class AlgEvolutivo:
             print("Se llego a la aptitud requerida en : ")
             print(str(it))
         print("Solucion encontrada : ")
-        #X
         print(self.mejor_individuo)
-        #f(x)
         print("x: ")
         print(self.mejor_individuo.get_x_numero()-100)
         print("y: ")
@@ -259,16 +305,19 @@ class AlgEvolutivo:
         print("f(x, y)")
         print(f(self.mejor_individuo.get_x_numero()-100, self.mejor_individuo.get_y_numero()-100))
         print("Aptitud encontrada : ")
-        print(self.mejor_aptitud)
+        print(-self.mejor_aptitud)
 
-iteraciones=2000
-#La mejor aptitud que se puede lograr con numeros enteros es 4.677966171082638
-poblacion=AlgEvolutivo(500,16,135871387,iteraciones)
+iteraciones=1000
+individuos_inicial=50
+poblacion=AlgEvolutivo(individuos_inicial,16,-0.5,iteraciones)
 poblacion.evolucion()
 
-#gdgx=gradiente_descendiente_global(-512,512,20,0.5,iteraciones)
-#print("Metodo gradiente: ")
-#print("X")
-#print(gdgx)
-#print("f(x)")
-#print(f(gdgx))
+mejor_x, mejor_y=gradiente_descendiente_global(-100,100,individuos_inicial,0.5,iteraciones)
+print("Metodo gradiente: ")
+print("X")
+print(mejor_x)
+print("Y")
+print(mejor_y)
+
+print("F(X, Y)")
+print(f(mejor_x, mejor_y))

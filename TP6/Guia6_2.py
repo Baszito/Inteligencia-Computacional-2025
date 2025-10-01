@@ -6,8 +6,8 @@ from sklearn.model_selection import cross_val_score
 from sklearn.metrics import accuracy_score
 
 #Cargamos los datos:
-train_data = pd.read_csv("leukemia_train.csv")
-test_data = pd.read_csv("leukemia_test.csv")
+train_data = pd.read_csv("TP6/leukemia_train.csv")
+test_data = pd.read_csv("TP6/leukemia_test.csv")
 
 #Separamos los datos de entrenameinto y testeo
 X_train = train_data.iloc[:, :-1].values
@@ -38,7 +38,7 @@ def Aptitud(individuo):
     
     #Penalización para subconjuntos demasiado grandes
     #La idea sería encontrar el conjunto de caracteristicas que mejor resuelven, pero que no sean las 7129 que hay en total (una banda)
-    penalizacion = 0.001 * (len(seleccion) / num_caracteristicas)
+    penalizacion = 0.01 * (len(seleccion) / num_caracteristicas)
     return aciertos.mean() - penalizacion
 
 #Operaciones geneticas
@@ -72,7 +72,7 @@ def seleccion_por_torneo(poblacion, aciertos, k = 3):
     return seleccion[0][0]
 
 #Algoritmo genetico
-def algoritmo_genetico(tam_poblacion = 30, generaciones = 30, tasa_de_mutacion = 0.01):
+def algoritmo_genetico(tam_poblacion = 10, generaciones = 30, tasa_de_mutacion = 0.01):
     # población inicial (pocos genes activos al azar)
     poblacion = [np.random.choice([0,1], size = num_caracteristicas, p = [0.995, 0.005]) for _ in range(tam_poblacion)]
 
@@ -111,7 +111,7 @@ def algoritmo_genetico(tam_poblacion = 30, generaciones = 30, tasa_de_mutacion =
     return poblacion[elite_idx]
 
 #Ejecutamos el algoritmo, y vemos cuantas caracteristicas quedaron seleccionadas
-mejor_IND = algoritmo_genetico(tam_poblacion = 40, generaciones = 50, tasa_de_mutacion = 0.02)
+mejor_IND = algoritmo_genetico(tam_poblacion = 5, generaciones = 50, tasa_de_mutacion = 0.1)
 caract_seleccion = np.where(mejor_IND == 1)[0]
 print(f"Genes seleccionados: {len(caract_seleccion)}")
 
