@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import random
 import math
 import copy
+import time
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------Algoritmo evolutivo, para comparacion----------------------------------------------------#
@@ -16,8 +17,23 @@ import copy
        #3.3. Operador Mutacion
 #   4. fin
 
+plt.ion()
+
+fig = plt.figure()
+
 def fg(x):
-    return -x*math.sin(math.sqrt(abs(x)))       
+    return -x*math.sin(math.sqrt(abs(x)))  
+
+x_vals = np.linspace(-512.0, 512.0, 1000)
+y_vals = []
+for x in x_vals:
+    y_vals.append(fg(x))
+print(x_vals)
+print(y_vals)
+
+plt.plot(x_vals, y_vals)
+
+
 class Genotipo:
     def __init__(self, cant_bits):
         # Se inicializan los bits de manera aleatoria.
@@ -241,6 +257,20 @@ class Enjambre:
         it_global = 0
         while(it < max_it):
             y_gl_anterior = copy.deepcopy(self.y_global)
+            time.sleep(0.5)
+            plt.cla()
+            plt.plot(x_vals, y_vals)
+            # El siguiente for se utiliza simplemente para el ploteo
+            for k in range(0, self.cant_particulas):
+                plt.scatter(self.particulas[k].x[0], fg(self.particulas[k].x[0]), color="red")
+            plt.title(f"Iteración {it}")
+            plt.xlabel("x")
+            plt.ylabel("f(x)")
+            plt.grid(True)
+
+            plt.draw()
+            plt.pause(0.01)
+            
             for k in range(0, self.cant_particulas):
                 #print(k)
                 self.particulas[k].actualizar_y()
@@ -284,3 +314,6 @@ poblacion.evolucion()
 print("-----------------------------------------------------")
 x_enjambre=Enjambre(cant_particulas,1,-512,512,1,2)
 x_enjambre.loop_principal(1000, crit_parada=50)
+
+plt.ioff()
+plt.show()
