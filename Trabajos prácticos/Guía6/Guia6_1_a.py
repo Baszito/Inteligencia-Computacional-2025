@@ -14,6 +14,9 @@ import copy
 #   4. fin
 
 
+
+def fg(x):
+    return -x*math.sin(math.sqrt(abs(x)))       
 class Genotipo:
     def __init__(self, cant_bits):
         # Se inicializan los bits de manera aleatoria.
@@ -39,34 +42,10 @@ class Genotipo:
     def __str__(self):
         return "Soy el mejor individuo"
         
-def f(x):
-    return -x*math.sin(math.sqrt(abs(x)))
-def d_f(x): #para utilizar el metodo del gradiente
-    if x == 0:  # evitar división por cero
-        print("GRADIENTE INVALIDO")
-        return float('nan')
-    return -math.sin(math.sqrt(abs(x))) - (x**2 * math.cos(math.sqrt(abs(x)))) / (2 * abs(x) * math.sqrt(abs(x)))
-def metodo_gradiente_descendiente(punto_inicial, iteraciones, gamma):
-    p = punto_inicial
-    for i in range(0, iteraciones):
-        p = p - gamma*d_f(p)
-        # forzar rango [-512, 512]
-        if p < -512:
-            p = -512
-        elif p > 512:
-            p = 512
-    return p
-def gradiente_descendiente_global(punto_minimo,punto_maximo,cant_puntos,gamma,iteraciones):
-    puntos=[]
-    mejor_x=0
-    for i in range(0,cant_puntos):
-        puntos.append(metodo_gradiente_descendiente(random.uniform(punto_minimo,punto_maximo),iteraciones,gamma))
-        if(f(mejor_x)>f(puntos[i])):
-            mejor_x=puntos[i]
-    return mejor_x
+
 class AlgEvolutivo:
     def funcion_fitness_1(self, individuo: Genotipo):
-        return -f(individuo.bits_a_numero() - 512)
+        return -fg(individuo.bits_a_numero() - 512)
     def __init__(self,cant_genotipos,cant_bits, aptitud_requerida,max_iteraciones):
         self.poblacion=[]
         self.cant_genotipos=cant_genotipos
@@ -189,28 +168,18 @@ class AlgEvolutivo:
         if(it==self.max_iteraciones):
             print("No se llego a la aptitud requerida")
         else:
-            print("Se llego a la aptitud requerida en : ")
-            
-            #print(str(it))
+            print("Se llego a la aptitud requerida en " + str(it) + " iteraciones")
         print("Solucion encontrada : ")
         #X
         print(self.mejor_individuo)
         #f(x)
         print("f(x)")
-        print(f(self.mejor_individuo.bits_a_numero() - 512))
+        print(fg(self.mejor_individuo.bits_a_numero() - 512))
         print("x(Algoritmo evolutivo)")
         print(self.mejor_individuo.bits_a_numero() - 512)
         print("Aptitud encontrada : ")
         print(self.mejor_aptitud)
-
 iteraciones=1000
 poblacion=AlgEvolutivo(40,10,415,iteraciones)
 poblacion.evolucion()
 
-#gdgx=gradiente_descendiente_global(-512,512,1,0.5,iteraciones)
-gdgx=metodo_gradiente_descendiente(float(random.randint(-512, 512)),iteraciones,0.5)
-print("Metodo gradiente: ")
-print("X(gradiente descendiente)")
-print(gdgx)
-print("f(x)")
-print(f(gdgx))
