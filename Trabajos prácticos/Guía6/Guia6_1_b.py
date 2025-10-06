@@ -55,8 +55,8 @@ class Genotipo:
             self.bits[0:8]=[1, 1, 0, 0, 1, 0, 0, 0]
             
     def mutacion(self):
-        self.posibilidad_mutacion_x=0.3
-        self.posibilidad_mutacion_y=0.3
+        self.posibilidad_mutacion_x=0.01
+        self.posibilidad_mutacion_y=0.01
         self.aux_x=random.random()
         if(self.aux_x<=self.posibilidad_mutacion_x):
             randi = random.randint(0, 7)
@@ -163,12 +163,7 @@ class AlgEvolutivo:
             if(self.mejor_aptitud<aptitud_actual):
                 self.mejor_aptitud=aptitud_actual
                 self.mejor_individuo = copy.deepcopy(self.poblacion[i])
-                print("x: ")
-                print(self.mejor_individuo.get_x_numero()-100)
-                print("y: ")
-                print(self.mejor_individuo.get_y_numero()-100)
-                print("f(x,y)")
-                print(f(self.mejor_individuo.get_x_numero()-100, self.mejor_individuo.get_y_numero()-100))
+
             if(self.peor_aptitud1>aptitud_actual):
                 self.peor_aptitud2=self.peor_aptitud1
                 self.peor_aptitud1=aptitud_actual
@@ -218,6 +213,18 @@ class AlgEvolutivo:
             #hijo2 = Genotipo(self.cant_bits)
             #hijo2.bits = sublista1 + sublista2
         return (hijo1, hijo2)
+    
+    def seleccion_por_torneo(self, k = 3):
+        #A las piñas muchachos
+        #Seleccionamos k individuos al azar de la poblacion y su APTITUD
+        seleccion = random.sample(list(zip(self.poblacion, self.aptitudes)), k)
+
+        #Ordenamos los seleccionados de mayor a menor
+        #key = lambda x:x[1] -> Usa como parametro de comparacion el 2do elemento de seleccion (la aptitud del individuo)
+        seleccion.sort(key=lambda x: x[1], reverse=True)
+
+        #Retornamos al individuo de mayor aptitud (el que quedo 1ero en el ordenamiento pue)
+        return seleccion[0][0]
         
     def seleccion(self):
         #Se implementa algoritmo de ruleta
@@ -245,25 +252,27 @@ class AlgEvolutivo:
         return self.genotipos_ruleta[self.numerito]
     
     def generacion(self):
-        #elegir 2 padres
-        self.progenitor1=self.seleccion()
-        self.progenitor2=self.seleccion()
-        
-        #cruzarlos
-        hijo1, hijo2 = self.cruzar(self.progenitor1, self.progenitor2)
-        
-        #mutarlo
-        hijo1.mutacion()
-        hijo2.mutacion()
+        poblacion_aux=[]
+        for i in range(0, int(self.cant_genotipos/2)):
+            #elegir 2 padres
+            #self.progenitor1=self.seleccion()
+            #self.progenitor2=self.seleccion()
 
-        #agregarlo al arreglo de la poblacion
-        self.poblacion.append(hijo1)
-        self.poblacion.append(hijo2)
+            self.progenitor1=self.seleccion_por_torneo()
+            self.progenitor2=self.seleccion_por_torneo()
+            
+            #cruzarlos
+            hijo1, hijo2 = self.cruzar(self.progenitor1, self.progenitor2)
+            
+            #mutarlo
+            hijo1.mutacion()
+            hijo2.mutacion()
 
-        #del self.poblacion[self.peor_individuo1]
-        #del self.poblacion[self.peor_individuo2]
-        #y actualizar al cant_genotipos
-        #self.cant_genotipos += 2
+            #agregarlo al arreglo de la poblacion
+            poblacion_aux.append(hijo1)
+            poblacion_aux.append(hijo2)
+
+        self.poblacion=poblacion_aux
         
     
     def evolucion(self):

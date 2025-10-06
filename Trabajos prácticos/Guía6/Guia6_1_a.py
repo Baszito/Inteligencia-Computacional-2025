@@ -3,14 +3,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 import math
+import copy
 
-#1. Inicializar poblacion (decodificacion) (10 bits)
-#2. mejorAptitud = evaluar(poblacion) (Funcion de fitness : 1/f(x))
-#3. mientras MejorAptitud < AptitudRequerida
-    #3.1. Operador Seleccion
-    #3.2. Operador Cruza
-    #3.3. Operador Mutacion
-#4. fin
+#   1. Inicializar poblacion (decodificacion) (10 bits)
+#   2. mejorAptitud = evaluar(poblacion) (Funcion de fitness : 1/f(x))
+#   3. mientras MejorAptitud < AptitudRequerida
+       #3.1. Operador Seleccion
+       #3.2. Operador Cruza
+       #3.3. Operador Mutacion
+#   4. fin
 
 
 class Genotipo:
@@ -27,7 +28,7 @@ class Genotipo:
             numero = (numero << 1) | bit  # desplazar y agregar bit
         return numero
     def mutacion(self):
-        self.posibilidad_mutacion=0.2
+        self.posibilidad_mutacion=0.01
         self.aux=random.random()
         if(self.aux<=self.posibilidad_mutacion):
             randi = random.randint(0, self.cant_bits-1)
@@ -109,6 +110,7 @@ class AlgEvolutivo:
         return (hijo1, hijo2)
         
     def seleccion(self):
+        print('seleccion')
         #Se implementa algoritmo de ruleta
         #Sumas todos
         #Sacas un numero entre 0 y la cantidad maxima
@@ -133,33 +135,50 @@ class AlgEvolutivo:
         self.numerito = random.randint(0, len(self.ruleta))
         return self.genotipos_ruleta[self.numerito]
     
+    def seleccion_por_torneo(self, k = 3):
+        #A las piñas muchachos
+        #Seleccionamos k individuos al azar de la poblacion y su APTITUD
+        seleccion = random.sample(list(zip(self.poblacion, self.aptitudes)), k)
+
+        #Ordenamos los seleccionados de mayor a menor
+        #key = lambda x:x[1] -> Usa como parametro de comparacion el 2do elemento de seleccion (la aptitud del individuo)
+        seleccion.sort(key=lambda x: x[1], reverse=True)
+
+        #Retornamos al individuo de mayor aptitud (el que quedo 1ero en el ordenamiento pue)
+        return seleccion[0][0]
+
     def generacion(self):
-        #elegir 2 padres
-        self.progenitor1=self.seleccion()
-        self.progenitor2=self.seleccion()
-        
-        #cruzarlos
-        hijo1, hijo2 = self.cruzar(self.progenitor1, self.progenitor2)
-        
-        #mutarlo
-        hijo1.mutacion()
-        hijo2.mutacion()
+        poblacion_aux=[]
+        for i in range(0, int(self.cant_genotipos/2)):
+            #elegir 2 padres
+            #self.progenitor1=self.seleccion()
+            #self.progenitor2=self.seleccion()
 
-        #agregarlo al arreglo de la poblacion
-        self.poblacion.append(hijo1)
-        self.poblacion.append(hijo2)
+            self.progenitor1=self.seleccion_por_torneo()
+            self.progenitor2=self.seleccion_por_torneo()
+            
+            #cruzarlos
+            hijo1, hijo2 = self.cruzar(self.progenitor1, self.progenitor2)
+            
+            #mutarlo
+            hijo1.mutacion()
+            hijo2.mutacion()
 
-        #y actualizar al cant_genotipos
-        self.cant_genotipos += 2
+            #agregarlo al arreglo de la poblacion
+            poblacion_aux.append(hijo1)
+            poblacion_aux.append(hijo2)
+
+        self.poblacion=poblacion_aux
     
     def evolucion(self):
         print("Algoritmo Evolutivo : ")
-        print("Iteraciones :")
+        
+        print("...cargando...")
         it = 0
         self.evaluar_poblacion()
         for i in range(0, self.max_iteraciones):
             
-            print(str(it))
+            #print(str(it))
 
             self.generacion()
             self.evaluar_poblacion()
@@ -171,25 +190,27 @@ class AlgEvolutivo:
             print("No se llego a la aptitud requerida")
         else:
             print("Se llego a la aptitud requerida en : ")
-            print(str(it))
+            
+            #print(str(it))
         print("Solucion encontrada : ")
         #X
         print(self.mejor_individuo)
         #f(x)
         print("f(x)")
         print(f(self.mejor_individuo.bits_a_numero() - 512))
-        print("x")
+        print("x(Algoritmo evolutivo)")
         print(self.mejor_individuo.bits_a_numero() - 512)
         print("Aptitud encontrada : ")
         print(self.mejor_aptitud)
 
-iteraciones=20
-poblacion=AlgEvolutivo(10,10,420,iteraciones)
+iteraciones=1000
+poblacion=AlgEvolutivo(40,10,415,iteraciones)
 poblacion.evolucion()
 
-gdgx=gradiente_descendiente_global(-512,512,20,0.5,iteraciones)
+#gdgx=gradiente_descendiente_global(-512,512,1,0.5,iteraciones)
+gdgx=metodo_gradiente_descendiente(float(random.randint(-512, 512)),iteraciones,0.5)
 print("Metodo gradiente: ")
-print("X")
+print("X(gradiente descendiente)")
 print(gdgx)
 print("f(x)")
 print(f(gdgx))

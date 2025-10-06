@@ -38,7 +38,7 @@ def Aptitud(individuo):
     
     #Penalización para subconjuntos demasiado grandes
     #La idea sería encontrar el conjunto de caracteristicas que mejor resuelven, pero que no sean las 7129 que hay en total (una banda)
-    penalizacion = 0.01 * (len(seleccion) / num_caracteristicas)
+    penalizacion = 1 * (len(seleccion) / num_caracteristicas)
     return aciertos.mean() - penalizacion
 
 #Operaciones geneticas
@@ -88,7 +88,7 @@ def algoritmo_genetico(tam_poblacion = 10, generaciones = 30, tasa_de_mutacion =
         acierto_elite = aciertos[elite_idx]
         nueva_poblacion.append(ind_elite)
 
-        #Reproduccion (53x0)
+        #Reproduccion
         #Hasta completar la nueva generacion, hacemos:
         while len(nueva_poblacion) < tam_poblacion:
             #Seleccionamos por competencia 2 individuos
@@ -111,7 +111,7 @@ def algoritmo_genetico(tam_poblacion = 10, generaciones = 30, tasa_de_mutacion =
     return poblacion[elite_idx]
 
 #Ejecutamos el algoritmo, y vemos cuantas caracteristicas quedaron seleccionadas
-mejor_IND = algoritmo_genetico(tam_poblacion = 5, generaciones = 50, tasa_de_mutacion = 0.1)
+mejor_IND = algoritmo_genetico(tam_poblacion = 5, generaciones = 200, tasa_de_mutacion = 0.0001)
 caract_seleccion = np.where(mejor_IND == 1)[0]
 print(f"Genes seleccionados: {len(caract_seleccion)}")
 
