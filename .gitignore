@@ -1,0 +1,5 @@
+# Ignorar todos los embedding_matrix.csv
+**/embedding_matrix.csv
+
+# Ignorar todos los vocabulary_nostopword.csv
+**/vocabulary_nostopwords.csv
