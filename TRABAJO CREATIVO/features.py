@@ -29,10 +29,9 @@ class Features:
         tokenizer = Tokenizer(num_words=self.max_len,oov_token='<OOV>')
         tokenizer.fit_on_texts(X['news_headline'].tolist())
         X_trn_sequences=tokenizer.texts_to_sequences(X_trn['news_headline'].tolist())
-        self.X_trn_padded=pad_sequences(X_trn_sequences,padding='post')
-
+        self.X_trn_padded = pad_sequences(X_trn_sequences, maxlen=self.max_len, padding='post', truncating='post')
         X_tst_sequences=tokenizer.texts_to_sequences(X_tst['news_headline'].tolist())
-        self.X_tst_padded=pad_sequences(X_tst_sequences,padding='post')
+        self.X_tst_padded = pad_sequences(X_tst_sequences, maxlen=self.max_len, padding='post', truncating='post')
 
         self.y_trn = self.y_trn.to_numpy()
         self.y_tst = self.y_tst.to_numpy()
