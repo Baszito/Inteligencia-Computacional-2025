@@ -6,4 +6,9 @@
 
 # Ignorar todos los embedding_matrixK.csv
 **/embedding_matrixK.csv
+
+**/Modelo
+
+**/dataset.hf
+
 TRABAJO CREATIVO/embedding_matrixK.csv

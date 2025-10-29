@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import time
 
-data_nostopwords = pd.read_csv('TRABAJO CREATIVO\SherLockFakenewsProcessedNoStopWords.csv')
+data_nostopwords = pd.read_csv('TRABAJO CREATIVO\SherLockFakenewsProcessedWithStopWords.csv')
 
 fake_news = 0
 real_news = 0
