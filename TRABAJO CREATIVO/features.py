@@ -16,12 +16,12 @@ import numpy as np
 
 class Features:
     def __init__(self):
-        data_stopwords = pd.read_csv('TRABAJO CREATIVO/SherLockFakenewsProcessedWithStopWords.csv')
+        data_stopwords = pd.read_csv('TRABAJO CREATIVO/SherLockFakenewsProcessedNoStopWords.csv')
         X = data_stopwords[['news_headline']]
         y = data_stopwords[['reliable']]
         X_trn, X_tst, self.y_trn, self.y_tst = train_test_split(X, y, test_size=0.2, shuffle=True)
         #print(X_trn)
-        matriz_embedding = pd.read_csv('TRABAJO CREATIVO/embedding_matrixK.csv', header=None)
+        matriz_embedding = pd.read_csv('TRABAJO CREATIVO/embedding_matrixKNoStopwords.csv', header=None)
         self.matriz_embedding = matriz_embedding.to_numpy()
 
         #Tokenization and Padding

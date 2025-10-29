@@ -127,20 +127,35 @@ print(model)
 criterion = nn.BCEWithLogitsLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3) # Preguntarle a di persia que prefiere
 #optimizer = torch.optim.ASGD(model.parameters(), lr=1e-3) #
-
-for epoch in range(20):
+target_acc = 0.95   # detener si llegamos al 95%
+last_acc = 0
+for epoch in range(50):
     model.train()
     total_loss = 0
+    correct = 0
+    total = 0
+    
     for x_batch, y_batch in train_loader:
         x_batch, y_batch = x_batch.to(device), y_batch.to(device)
 
-        optimizer.zero_grad()               # Limpia los gradientes del batch anterior
-        outputs = model(x_batch)            # propagación hacia adelante
-        loss = criterion(outputs, y_batch)  # supongo que es el error.
-        loss.backward()                     # retropropagación
-        optimizer.step()                    # actualiza los pesos.
-
+        optimizer.zero_grad()
+        outputs = model(x_batch)              
+        loss = criterion(outputs, y_batch)
+        loss.backward()
+        optimizer.step()
         total_loss += loss.item()
 
-    print(f"Epoch {epoch+1}, Loss: {total_loss/len(train_loader):.4f}")
+        # Convertimos lo que tira logits a 0 o 1 usando una sigmoide truncada
+        preds = torch.sigmoid(outputs) >= 0.5
+        correct += (preds.float() == y_batch).sum().item()
+        total += y_batch.size(0)
+
+    acc = correct / total
+    avg_loss = total_loss / len(train_loader)
+    print(f"Epoch {epoch+1}, Loss: {avg_loss:.4f}, Accuracy: {acc:.4f}")
+
+    # criterio de parada por accuracy
+    if acc >= target_acc:
+        print("Accuracy requerida alcanzada.")
+        break
 

@@ -22,18 +22,18 @@ with open(r"D:\Cosas de la cufa\Inteligencia Computacional\glove.twitter.27B.100
         vector = np.asarray(values[1:], dtype='float32')
         embeddings_index[word] = vector
 
-X = data_nostopwords[['news_headline']]
-y = data_nostopwords[['reliable']]
-X_trn, X_tst, y_trn, y_tst = train_test_split(X, y, test_size=0.2, shuffle=True)
+#X = data_nostopwords[['news_headline']]
+#y = data_nostopwords[['reliable']]
+#X_trn, X_tst, y_trn, y_tst = train_test_split(X, y, test_size=0.2, shuffle=True)
 
 #vocab_size = len(vocabulary) + 1  # +1 por el padding
 embedding_dim = 100
 
 
 #Dataset Spiltting
-data_stopwords = pd.read_csv('TRABAJO CREATIVO/SherLockFakenewsProcessedWithStopWords.csv')
-X = data_stopwords[['news_headline']]
-y = data_stopwords[['reliable']]
+#data_stopwords = pd.read_csv('TRABAJO CREATIVO/SherLockFakenewsProcessedWithStopWords.csv')
+X = data_nostopwords[['news_headline']]
+y = data_nostopwords[['reliable']]
 X_trn, X_tst, y_trn, y_tst = train_test_split(X, y, test_size=0.2, shuffle=True)
 #print(X_trn)
 
@@ -54,4 +54,4 @@ for word, i in tokenizer.word_index.items():
         # Palabra no encontrada → vector aleatorio
         embedding_matrix[i] = np.random.normal(size=(embedding_dim,))
 
-np.savetxt(r'TRABAJO CREATIVO\embedding_matrixK.csv', embedding_matrix, delimiter=',')
+np.savetxt(r'TRABAJO CREATIVO\embedding_matrixKNoStopwords.csv', embedding_matrix, delimiter=',')

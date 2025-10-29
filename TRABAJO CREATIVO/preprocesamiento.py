@@ -9,6 +9,8 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
+import random
+
 # Cosas que hice por mi cuenta (Discutible):
 # 1. Directamente no incluir textos vacíos.
 # 2. Textos con ruido y caracteres raros simplemente no se incluyen.
@@ -39,7 +41,7 @@ def has_weird_chars(text):
 # Esto es para detectar textos incompletos.
 def has_ellipsis(text):
     return '...' in text
-
+cont = 0
 for i in range(0, data.shape[0]):
     txt = data.iloc[i, 0]
 
@@ -63,9 +65,14 @@ for i in range(0, data.shape[0]):
         txt = ""
 
     # Si el texto resultante es vacío, no lo contamos.
+    if data.iloc[i, 1] == 1:
+        cont+=1
     if txt == "":
         continue
-
+    
+    # Las primeras 44000 noticias reales no las contamos
+    if cont < 54000 and data.iloc[i, 1] == 1:
+        continue
     # Le sacamos las stopwords
     # Esto lo saque de la documentacion, no de ChatGPT, antes de que me bardeen 😒
     stop_words = set(stopwords.words('english'))
@@ -77,13 +84,31 @@ for i in range(0, data.shape[0]):
     txt_nostopwords = ""
     for f in filtered_tokens:
         txt_nostopwords = txt_nostopwords + f + " "
+    
 
+    
     processed_data_stopwords.append({'news_headline': txt, 'reliable': data.iloc[i, 1]})
-    processed_data_nostopwords.append({'news_headline': txt_nostopwords, 'reliable': data.iloc[i, 1]})
+    if (txt_nostopwords == " " or txt_nostopwords == "" or txt_nostopwords == "  "):
+        continue
+    else:
+        processed_data_nostopwords.append({'news_headline': txt_nostopwords, 'reliable': data.iloc[i, 1]})
+    #processed_data_nostopwords.append({'news_headline': txt_nostopwords, 'reliable': data.iloc[i, 1]})
+
+#processed_data_nostopwords_new = [item for item in processed_data_nostopwords if (item['news_headline'] != "" or item['news_headline'] != " " or item['news_headline'] != None)] 
+
+random.shuffle(processed_data_stopwords)
+random.shuffle(processed_data_nostopwords)
 
 df_stopwords = pd.DataFrame(processed_data_stopwords)
 df_nostopwords = pd.DataFrame(processed_data_nostopwords)
 
+df_nostopwords[['news_headline']] = df_nostopwords[['news_headline']].fillna(' ')
+
+# for i in range(0, processed_data_nostopwords[0]):
+#     # Si el texto resultante es vacío, no lo contamos.
+#     if (processed_data_nostopwords['news_headline'] == "" or processed_data_nostopwords['news_headline'] == None):
+#         pass        
+    
 df_stopwords.to_csv('TRABAJO CREATIVO\SherLockFakenewsProcessedWithStopWords.csv', 
           index=False,
           encoding='utf-8',     # Codificación
@@ -92,3 +117,4 @@ df_nostopwords.to_csv('TRABAJO CREATIVO\SherLockFakenewsProcessedNoStopWords.csv
           index=False,
           encoding='utf-8',     # Codificación
           header=True)          # Incluir nombres de columnas
+
