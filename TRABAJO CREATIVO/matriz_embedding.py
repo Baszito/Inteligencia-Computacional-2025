@@ -13,7 +13,8 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 data_nostopwords = pd.read_csv('TRABAJO CREATIVO\SherLockFakenewsProcessedNoStopWords.csv')
 embeddings_index = {}
-with open(r"D:\Cosas de la cufa\Inteligencia Computacional\glove.twitter.27B.100d.txt", encoding="utf-8") as f:
+with open(r"C:\Users\lucga\OneDrive\Documentos\GitHub\glove.twitter.27B\glove.twitter.27B.100d.txt", encoding="utf-8") as f:
+#with open(r"D:\Cosas de la cufa\Inteligencia Computacional\glove.twitter.27B.100d.txt", encoding="utf-8") as f:
 #with open(r"C:\Users\valentin\Desktop\fuckultad\Inteligencia Computacional\glove.twitter.27B\glove.twitter.27B.100d.txt", encoding="utf-8") as f:
     for line in f:
         values = line.split()
