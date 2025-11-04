@@ -11,4 +11,16 @@
 
 **/dataset.hf
 
+**/glove.twitter.27B.100d.txt
+
 TRABAJO CREATIVO/embedding_matrixK.csv
+TRABAJO CREATIVO/model.model
+TRABAJO CREATIVO/model.model
+TRABAJO CREATIVO/embedding_matrixKWithStopwords
+TRABAJO CREATIVO/__pycache__/training.cpython-313.pyc
+TRABAJO CREATIVO/__pycache__/testing.cpython-313.pyc
+TRABAJO CREATIVO/__pycache__/red.cpython-313.pyc
+TRABAJO CREATIVO/__pycache__/preprocesamiento.cpython-313.pyc
+TRABAJO CREATIVO/__pycache__/matriz_embedding.cpython-313.pyc
+TRABAJO CREATIVO/__pycache__/features.cpython-313.pyc
+TRABAJO CREATIVO/embedding_matrixKWithStopwords

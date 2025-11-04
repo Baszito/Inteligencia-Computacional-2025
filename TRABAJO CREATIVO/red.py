@@ -3,50 +3,13 @@ import torch
 import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
 
-#Features Engineering
-f = Features() 
-
-#Configuracion, para mandar todo el modelo a la GPU
-if torch.cuda.is_available():
-    print(torch.cuda.get_device_name(0))
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Using {device} device")
-
-# max_len es la cantidad de tokens que tiene cada secuencia con padding incluido.
-max_len = len(f.X_trn_padded[0, :])
-
-#Transformar los datos del Features Engineering al formato de TORCH (Tensores)
-x_trn_padded_torch = torch.from_numpy(f.X_trn_padded)
-x_tst_padded_torch = torch.from_numpy(f.X_tst_padded)
-
-y_trn_torch = torch.from_numpy(f.y_trn)
-y_tst_torch = torch.from_numpy(f.y_tst)
-embedding_matrix_torch = torch.tensor(f.matriz_embedding, dtype=torch.float32)
-
-#Casteo a flotantes, para que despues no moleste en el criterion
-y_trn_torch = y_trn_torch.float()
-y_tst_torch = y_tst_torch.float()
-
-# Mover los tensores al device de TORCH
-if torch.accelerator.is_available():
-    x_trn_padded_torch = x_trn_padded_torch.to(device)
-    x_tst_padded_torch = x_tst_padded_torch.to(device)
-    y_trn_torch = y_trn_torch.to(device)
-    y_tst_torch = y_tst_torch.to(device)
-
-# Crear datasets y dataloaders
-train_data = TensorDataset(x_trn_padded_torch, y_trn_torch) #Un dataset permite guardar datos para posteriormente entrenar/testear un modelo
-test_data = TensorDataset(x_tst_padded_torch, y_tst_torch)
-
-train_loader = DataLoader(train_data, batch_size=128, shuffle=True) #un dataloader es como un contenedor de un dataset, tiene batches, iteradores, etc
-test_loader = DataLoader(test_data, batch_size=128)
-
 #Clase RED CONVOLUCIONAL
 class CNN(nn.Module):
-    def __init__(self, embedding_matrix, num_filters=128, kernel_size=5):
+    def __init__(self, features, embedding_matrix, num_filters=128, kernel_size=5):
         super().__init__()
         self.num_filters=num_filters
         self.kernel_size=kernel_size
+        max_len = len(features.X_trn_padded[0, :])
         vocab_size, embedding_dim = embedding_matrix.shape
         # El siguiente embedding se utiliza como paso del forward, para pasar de un vector de tokens a un vector denso.
         self.embedding = nn.Embedding.from_pretrained(
@@ -83,6 +46,7 @@ class CNN(nn.Module):
 
         # Calculo de dimensiones para poder crear la fully connected bien
         L = max_len  
+        #L_conv = L - kernel_size + 1
         L_conv= L - 5 +1
         L_out = L_conv//2
         # Fully Connected: Del mapa de características aplanado, se conecta completamente a una capa de perceptrones con salida lineal.
@@ -99,7 +63,7 @@ class CNN(nn.Module):
         x = self.Pool1d(x)
         x = self.Dropout(x)
         x = self.flatten(x)
-        x = self.ReLU(x)
+
         x = self.fc(x)
         #x = self.Sigmoid(x)
         return x

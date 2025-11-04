@@ -1,0 +1,113 @@
+import pandas as pd
+import os
+import numpy as np
+from preprocesamiento import preprocess_data
+from matriz_embedding import make_embedding_matrix
+from features import Features
+from red import CNN
+from training import train
+from testing import test
+from transformers import Trainer, TrainingArguments
+from transformers import AutoModelForSequenceClassification
+from transformers import AutoTokenizer, DataCollatorWithPadding
+import evaluate
+from datasets import load_dataset
+import torch
+
+glove_path = 'TRABAJO CREATIVO/glove.twitter.27B.100d.txt'
+dataset_path = 'TRABAJO CREATIVO/SherLockFakenewsNetOriginal.csv'
+#Trabajamos con stopwords, ya que obtuvimos mejores resultados con ellas.
+dataset_preprocessed_path = 'TRABAJO CREATIVO/SherLockFakenewsProcessedWithStopWords.csv'
+embedding_matrix_path = 'TRABAJO CREATIVO/embedding_matrixKWithStopwords'
+
+cnn_path = 'TRABAJO CREATIVO/cnn.pytorch'
+
+# Verificaciones de existencia
+if not os.path.exists(dataset_preprocessed_path):
+    preprocess_data(dataset_path, dataset_preprocessed_path)
+
+if not os.path.exists(embedding_matrix_path):
+    make_embedding_matrix(glove_path, dataset_preprocessed_path, embedding_matrix_path)
+
+# Finalmente cargamos el dataset
+dataset = pd.read_csv(dataset_preprocessed_path)
+embedding_matrix = pd.read_csv(embedding_matrix_path)
+print("Dataset y matriz de embeddings cargadas correctamente.")
+
+features = Features(dataset, embedding_matrix)
+
+# Si el modelo no existe, lo entrenamos
+if not os.path.exists(cnn_path):
+    print("CNN doesn't exist, then we train it.")
+    train(features, CNN, cnn_path)
+
+# Testeamos el modelo
+#if not os.path.exists(cnn_path):
+#    print("CNN doesn't exist, then we train it.")
+#    train(features, CNN, cnn_path)
+print("Resultados de la CNN:")
+test(features, CNN, cnn_path)
+
+# Cargando el transformer
+
+model = AutoModelForSequenceClassification.from_pretrained("tukx/fake-news-classificator")
+ds = load_dataset("tukx/processed_fake_news")
+tokenizer = AutoTokenizer.from_pretrained("tukx/fake-news-classificator")
+def preprocess_function(examples):
+    return tokenizer(examples["text"], truncation=True) # El truncar funciona porque está dentro del tokenizer
+
+tokenized_ds = ds.map(preprocess_function, batched=True)
+data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
+
+accuracy = evaluate.load("accuracy")
+def compute_metrics(eval_pred):
+    predictions, labels = eval_pred
+    predictions = np.argmax(predictions, axis=1)
+    return accuracy.compute(predictions=predictions, references=labels)
+
+training_args = TrainingArguments(
+    output_dir=r"TRABAJO CREATIVO\transformer\Modelo",
+    learning_rate=2e-5,
+    per_device_train_batch_size=16,
+    per_device_eval_batch_size=16,
+    num_train_epochs=2,
+    weight_decay=0.01,
+    eval_strategy="epoch",
+    save_strategy="epoch",
+    load_best_model_at_end=True,
+    push_to_hub=False,
+)
+
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    train_dataset=tokenized_ds["train"],
+    eval_dataset=tokenized_ds["test"],
+    processing_class=tokenizer,
+    data_collator=data_collator,
+    compute_metrics=compute_metrics,
+)
+
+print("Resultados de Transformer: ")
+
+results = trainer.evaluate()
+print(results)
+
+texto_random = "Trump kills martian."
+inputs = tokenizer(texto_random, return_tensors="pt")
+
+with torch.no_grad():
+    logits = model(**inputs).logits
+
+predicted_class_id = logits.argmax().item()
+print("Texto de prueba: " + texto_random)
+print("Resultado: ")
+print(predicted_class_id)
+print(model.config.id2label[predicted_class_id])
+
+
+
+
+
+
+
