@@ -2,9 +2,7 @@ from datasets import load_from_disk
 from transformers import AutoTokenizer, DataCollatorWithPadding, AutoModelForSequenceClassification, TrainingArguments, Trainer
 import evaluate
 import numpy as np
-
-
-# El siguiente código se utiliza para hacer un fine-tune de un Transformer pre-entrenado llamado 'distilbert-base-uncased'
+#import torch_directml
 
 ds = load_from_disk(r"TRABAJO CREATIVO\transformer\dataset.hf")
 print(ds["test"][0])
@@ -29,6 +27,9 @@ label2id = {"FAKE NEW": 0, "REAL NEW": 1}
 model = AutoModelForSequenceClassification.from_pretrained(
     "distilbert/distilbert-base-uncased", num_labels=2, id2label=id2label, label2id=label2id
 )
+#dml = torch_directml.device()
+#print(dml)
+#model.to("dml")  # en lugar de .to("cuda") o .to("cpu")
 
 training_args = TrainingArguments(
     output_dir=r"TRABAJO CREATIVO\transformer\Modelo",
@@ -54,3 +55,5 @@ trainer = Trainer(
 )
 
 trainer.train()
+
+#print(ds["test"][0])
