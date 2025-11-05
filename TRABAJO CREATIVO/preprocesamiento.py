@@ -2,20 +2,12 @@ import pandas as pd
 import numpy as np
 from bs4 import BeautifulSoup
 import re
-
 import unicodedata
-
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-
 import random
 
-# Cosas que hice por mi cuenta (Discutible):
-# 1. Directamente no incluir textos vacíos.
-# 2. Textos con ruido y caracteres raros simplemente no se incluyen.
-# 3. Hacer un .csv con stopwords y otro sin, por las dudas si las stopwords tienen algo que ver con la posibilidad de la noticia de ser una fake new.
-# 4. No incluir textos que incluyan '...' porque generalmente son textos incompletos.
 def preprocess_data(dataset_path: str, dataset_save_path: str):
     print("Preprocesando dataset...")
     data = pd.read_csv(dataset_path)
@@ -26,7 +18,6 @@ def preprocess_data(dataset_path: str, dataset_save_path: str):
     #data = data.sample(n=100, random_state=1)
 
     processed_data = []
-    #processed_data_nostopwords = []
 
     # Se reemplazan los datos vacíos o nulos con fillna()
     data[['reliable']] = data[['reliable']].fillna(value=0)
@@ -75,7 +66,6 @@ def preprocess_data(dataset_path: str, dataset_save_path: str):
         if cont < 54000 and data.iloc[i, 1] == 1:
             continue
         # Le sacamos las stopwords
-        # Esto lo saque de la documentacion, no de ChatGPT, antes de que me bardeen 😒
         stop_words = set(stopwords.words('english'))
         tokens = word_tokenize(txt.lower())
     
@@ -89,31 +79,13 @@ def preprocess_data(dataset_path: str, dataset_save_path: str):
         processed_data.append({'news_headline': txt, 'reliable': data.iloc[i, 1]})
         if (txt_nostopwords == " " or txt_nostopwords == "" or txt_nostopwords == "  "):
             continue
-        #else:
-        #    processed_data_nostopwords.append({'news_headline': txt_nostopwords, 'reliable': data.iloc[i, 1]})
-        #processed_data_nostopwords.append({'news_headline': txt_nostopwords, 'reliable': data.iloc[i, 1]})
-
-    #processed_data_nostopwords_new = [item for item in processed_data_nostopwords if (item['news_headline'] != "" or item['news_headline'] != " " or item['news_headline'] != None)] 
 
     random.shuffle(processed_data)
-    #random.shuffle(processed_data_nostopwords)
 
     df_stopwords = pd.DataFrame(processed_data)
-    #df_nostopwords = pd.DataFrame(processed_data_nostopwords)
-
-    #df_nostopwords[['news_headline']] = df_nostopwords[['news_headline']].fillna(' ')
-
-    # for i in range(0, processed_data_nostopwords[0]):
-    #     # Si el texto resultante es vacío, no lo contamos.
-    #     if (processed_data_nostopwords['news_headline'] == "" or processed_data_nostopwords['news_headline'] == None):
-    #         pass        
         
     df_stopwords.to_csv(dataset_save_path, 
             index=False,
             encoding='utf-8',     # Codificación
             header=True)          # Incluir nombres de columnas
-    #df_nostopwords.to_csv('TRABAJO CREATIVO\SherLockFakenewsProcessedNoStopWords.csv', 
-    #        index=False,
-    #        encoding='utf-8',     # Codificación
-    #        header=True)          # Incluir nombres de columnas
 

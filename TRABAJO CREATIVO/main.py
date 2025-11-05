@@ -20,6 +20,8 @@ dataset_path = 'TRABAJO CREATIVO/SherLockFakenewsNetOriginal.csv'
 dataset_preprocessed_path = 'TRABAJO CREATIVO/SherLockFakenewsProcessedWithStopWords.csv'
 embedding_matrix_path = 'TRABAJO CREATIVO/embedding_matrixKWithStopwords'
 
+
+#---------------------------------------------------CNN---------------------------------------------------#
 cnn_path = 'TRABAJO CREATIVO/cnn.pytorch'
 
 # Verificaciones de existencia
@@ -38,72 +40,57 @@ features = Features(dataset, embedding_matrix)
 
 # Si el modelo no existe, lo entrenamos
 if not os.path.exists(cnn_path):
-    print("CNN doesn't exist, then we train it.")
+    print("No existe el modelo. Se procede a entrenarlo")
     train(features, CNN, cnn_path)
 
-# Testeamos el modelo
-#if not os.path.exists(cnn_path):
-#    print("CNN doesn't exist, then we train it.")
-#    train(features, CNN, cnn_path)
 print("Resultados de la CNN:")
 test(features, CNN, cnn_path)
 
+#---------------------------------------------------TRANSFORMER---------------------------------------------------#
 # Cargando el transformer
+# model = AutoModelForSequenceClassification.from_pretrained("tukx/fake-news-classificator")
+# ds = load_dataset("tukx/processed_fake_news")
+# tokenizer = AutoTokenizer.from_pretrained("tukx/fake-news-classificator")
+# def preprocess_function(examples):
+#     return tokenizer(examples["text"], truncation=True) # El truncar funciona porque está dentro del tokenizer
 
-model = AutoModelForSequenceClassification.from_pretrained("tukx/fake-news-classificator")
-ds = load_dataset("tukx/processed_fake_news")
-tokenizer = AutoTokenizer.from_pretrained("tukx/fake-news-classificator")
-def preprocess_function(examples):
-    return tokenizer(examples["text"], truncation=True) # El truncar funciona porque está dentro del tokenizer
+# tokenized_ds = ds.map(preprocess_function, batched=True)
+# data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
-tokenized_ds = ds.map(preprocess_function, batched=True)
-data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
+# accuracy = evaluate.load("accuracy")
+# def compute_metrics(eval_pred):
+#     predictions, labels = eval_pred
+#     predictions = np.argmax(predictions, axis=1)
+#     return accuracy.compute(predictions=predictions, references=labels)
 
-accuracy = evaluate.load("accuracy")
-def compute_metrics(eval_pred):
-    predictions, labels = eval_pred
-    predictions = np.argmax(predictions, axis=1)
-    return accuracy.compute(predictions=predictions, references=labels)
+# training_args = TrainingArguments(
+#     output_dir=r"TRABAJO CREATIVO\transformer\Modelo",
+#     learning_rate=2e-5,
+#     per_device_train_batch_size=16,
+#     per_device_eval_batch_size=16,
+#     num_train_epochs=2,
+#     weight_decay=0.01,
+#     eval_strategy="epoch",
+#     save_strategy="epoch",
+#     load_best_model_at_end=True,
+#     push_to_hub=False,
+# )
 
-training_args = TrainingArguments(
-    output_dir=r"TRABAJO CREATIVO\transformer\Modelo",
-    learning_rate=2e-5,
-    per_device_train_batch_size=16,
-    per_device_eval_batch_size=16,
-    num_train_epochs=2,
-    weight_decay=0.01,
-    eval_strategy="epoch",
-    save_strategy="epoch",
-    load_best_model_at_end=True,
-    push_to_hub=False,
-)
+# trainer = Trainer(
+#     model=model,
+#     args=training_args,
+#     train_dataset=tokenized_ds["train"],
+#     eval_dataset=tokenized_ds["test"],
+#     processing_class=tokenizer,
+#     data_collator=data_collator,
+#     compute_metrics=compute_metrics,
+# )
 
-trainer = Trainer(
-    model=model,
-    args=training_args,
-    train_dataset=tokenized_ds["train"],
-    eval_dataset=tokenized_ds["test"],
-    processing_class=tokenizer,
-    data_collator=data_collator,
-    compute_metrics=compute_metrics,
-)
+# print("Resultados de Transformer: ")
 
-print("Resultados de Transformer: ")
+# results = trainer.evaluate()
+# print(results)
 
-results = trainer.evaluate()
-print(results)
-
-texto_random = "Trump kills martian."
-inputs = tokenizer(texto_random, return_tensors="pt")
-
-with torch.no_grad():
-    logits = model(**inputs).logits
-
-predicted_class_id = logits.argmax().item()
-print("Texto de prueba: " + texto_random)
-print("Resultado: ")
-print(predicted_class_id)
-print(model.config.id2label[predicted_class_id])
 
 
 

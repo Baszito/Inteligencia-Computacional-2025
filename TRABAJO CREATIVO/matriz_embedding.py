@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-
 from tensorflow.keras.preprocessing.text import Tokenizer
 
 #Divison del dataset
@@ -15,24 +14,8 @@ def make_embedding_matrix(glove_path, processed_data_path, embedding_matrix_path
             #print(word)
             vector = np.asarray(values[1:], dtype='float32')
             embeddings_index[word] = vector
-
-<<<<<<< Updated upstream
-data_nostopwords = pd.read_csv('TRABAJO CREATIVO\SherLockFakenewsProcessedNoStopWords.csv')
-embeddings_index = {}
-with open(r"C:\Users\lucga\OneDrive\Documentos\GitHub\glove.twitter.27B\glove.twitter.27B.100d.txt", encoding="utf-8") as f:
-#with open(r"D:\Cosas de la cufa\Inteligencia Computacional\glove.twitter.27B.100d.txt", encoding="utf-8") as f:
-#with open(r"C:\Users\valentin\Desktop\fuckultad\Inteligencia Computacional\glove.twitter.27B\glove.twitter.27B.100d.txt", encoding="utf-8") as f:
-    for line in f:
-        values = line.split()
-        word = values[0]
-        #print(word)
-        vector = np.asarray(values[1:], dtype='float32')
-        embeddings_index[word] = vector
-=======
-    embedding_dim = 100
->>>>>>> Stashed changes
-
     #Dividimos el dataset
+    embedding_dim = 100
     X = data[['news_headline']]
 
 

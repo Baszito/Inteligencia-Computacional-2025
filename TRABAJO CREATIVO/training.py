@@ -1,6 +1,7 @@
 from features import Features
 import torch
 import torch.nn as nn
+from torchmetrics import F1Score
 from torch.utils.data import TensorDataset, DataLoader
 from red import CNN
 #-----------------------------------ENTRENAMIENTO-----------------------------------#
@@ -79,7 +80,7 @@ def train(f: Features, modelObj, model_save_path: str):
         acc = aciertos / total
         avg_loss = total_loss / len(train_loader)
         print(f"Epoch {epoch+1}, Loss: {avg_loss:.4f}, Accuracy: {acc:.4f}")
-
+        
         # criterio de parada por accuracy
         if acc >= target_acc:
             print("Accuracy requerida alcanzada.")

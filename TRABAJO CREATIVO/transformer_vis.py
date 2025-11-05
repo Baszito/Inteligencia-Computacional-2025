@@ -66,10 +66,6 @@ plt.xlabel("Key Tokens")
 plt.ylabel("Query Tokens")
 plt.title("Attention Map")
 
-
-
-
-
 n = len(tokens)
 offset = 0.5  # medio paso
 
@@ -123,4 +119,4 @@ print(model.config.id2label[predicted_class_id])
 #    plt.show()
 
 # Usar la función
-plot_attention(attention_map, tokens, layer=0)
+#plot_attention(attention_map, tokens, layer=0)

@@ -3,11 +3,9 @@ import torch
 import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
 from torchmetrics import F1Score
-#from red import CNN
 from features import Features
 
-#Features Engineering
-
+#Preparacion de los datos para training
 def test(f: Features, modelObj, model_path: str):
 
     #Configuracion, para mandar todo el modelo a la GPU
@@ -49,14 +47,7 @@ def test(f: Features, modelObj, model_path: str):
     model.eval()
 
     #-----------------------------------EVALUACION-----------------------------------#
-
     criterion = nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3) # Preguntarle a di persia que prefiere
-    #optimizer = torch.optim.ASGD(model.parameters(), lr=1e-3) #
-    target_acc = 0.95   # detener si llegamos al 95%
-    tol = 0.005
-    last_acc = 0
-
     model.eval() # Capas como el Dropout (Útil para entrenar) no se toman en cuenta.
     total_loss = 0
     aciertos = 0
@@ -79,14 +70,13 @@ def test(f: Features, modelObj, model_path: str):
             aciertos += (preds.float() == y_batch).sum().item()
             total += y_batch.size(0) #cantidad de filas del batch
             
-
+    #Medida de accuracy
     acc = aciertos / total
     avg_loss = total_loss / len(test_loader)
     print(f"TEST : , Loss: {avg_loss:.4f}, Accuracy: {acc:.4f}")
 
-    # pip install torchmetrics
 
-    # For a binary classification task
+    # Medida de F1
     f1_binary = F1Score(task="binary")
     score_binary = f1_binary(torch.tensor(preds_l), torch.tensor(y_l))
     print("F1 Score: " + str(score_binary))

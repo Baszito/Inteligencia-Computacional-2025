@@ -17,87 +17,60 @@ class CNN(nn.Module):
             freeze=True,       # No entrenamos embeddings
             padding_idx=0      # El 0 es el padding
         )
-
         # Capa Convolucional, nos entrega un mapa de caracteristicas (dim=128) que se usan como filtros
         self.Conv1=nn.Conv1d(in_channels=embedding_dim, out_channels=128, kernel_size=5,stride=1)
-
+        self.Conv2=nn.Conv1d(in_channels=128, out_channels=64, kernel_size=3,stride=1)
         # Capa de POOLING, Se reduce el mapa de caracteristicas mediante muestreo (en este caso de valor maximo).
         # Kernel: Tamaño de ventana.
         # Stride: Paso para tomar la ventana.
         # Por cada ventana toma el máximo.
-
-        # Downsampling para velocidad.
         self.Pool1d = nn.MaxPool1d(kernel_size=2,stride=2)  
-
+        self.Pool1d2 = nn.MaxPool1d(kernel_size=2,stride=2)  
         # Capa de DROPOUT, convierto a 0 elementos randoms de los inputs con probabilidad p
         # Hinton comprobo que esto ayuda a evitar el sobreentrenamiento/overfitting.
-
         # Es para que la red no dependa de neuronas específicas. Apagando algunas neuronas, obligo a las otras a compensar
         self.Dropout=nn.Dropout(p=0.5)
-
+        self.Dropout2=nn.Dropout(p=0.5)
         # Capa de Flatten, transforma todo a un tensor de 1 dimension
         self.flatten=nn.Flatten()
         
         # Capa Dense, Funcion lineal rectificadora , negativos a 0 
         self.ReLU=nn.ReLU()
-
-        # Output sigmoide de toda la vida
+        self.ReLU2=nn.ReLU()
+        # Output sigmoide de toda la vida (Va de 0 a 1)
         self.Sigmoid=nn.Sigmoid()
 
-        # Calculo de dimensiones para poder crear la fully connected bien
-        L = max_len  
-        #L_conv = L - kernel_size + 1
-        L_conv= L - 5 +1
-        L_out = L_conv//2
-        # Fully Connected: Del mapa de características aplanado, se conecta completamente a una capa de perceptrones con salida lineal.
-        self.fc = nn.Linear(L_out*128,1) 
+        # Calcular dinámicamente el tamaño del feature map resultante
+        with torch.no_grad():
+            sample_input = torch.zeros(1, max_len, embedding_matrix.shape[1])  # (batch=1, seq_len, emb_dim)
+            sample_input = sample_input.permute(0, 2, 1)  # (1, emb_dim, seq_len)
+            x = self.Conv1(sample_input)
+            x = self.ReLU(x)
+            x = self.Pool1d(x)
+            x = self.Conv2(x)
+            x = self.ReLU(x)
+            x = self.Pool1d2(x)
+            feature_dim = x.numel()  # cantidad total de elementos después del flatten
+
+        self.fc = nn.Linear(feature_dim, 1)
     
     def forward(self, x):
         # x: (batch_size, seq_len)
         x = self.embedding(x)
-        # x = self.embedding(x)  ->   (batch, seq_len) → (batch, seq_len, emb_dim)   
+        # x = self.embedding(x)  ->   (batch, seq_len) -> (batch, seq_len, emb_dim)   
         # x = x.permute(0, 2, 1) ->   Reorganiza: (batch, emb_dim, seq_len)
         x = x.permute(0, 2, 1) # Se permuta simplemente para adaptar los datos de 'self.embedding(x)' al input esperado de la capa convolucional.      
         x = self.Conv1(x)
         x = self.ReLU(x)
         x = self.Pool1d(x)
         x = self.Dropout(x)
+        x = self.Conv2(x)
+        x = self.ReLU2(x)
+        x = self.Pool1d2(x)
+        x = self.Dropout2(x)
         x = self.flatten(x)
 
         x = self.fc(x)
         #x = self.Sigmoid(x)
         return x
 # No usamos sigmoide al final porque el criterio ya tiene una sigmoide incluida.
-
-#model = CNN(embedding_matrix_torch).to(device)
-#print(model)
-
-# Ver video de que es BINARY CROSS ENTROPY
-# BCELoss -> No usa sigmoide
-# BCEWithLogitsLoss -> Tiene sigmoide incluída que es numéricamente más estable.
-
-
-
-
-#-----------------------------------EVALUACION-----------------------------------#
-#model.eval() # Capas como el Dropout (Útil para entrenar) no se toman en cuenta.
-#total_loss = 0
-#aciertos = 0
-#total = 0
-#    
-#for x_batch, y_batch in test_loader:
-#    x_batch, y_batch = x_batch.to(device), y_batch.to(device)
-#
-#    optimizer.zero_grad()
-#    outputs = model(x_batch)              
-#    loss = criterion(outputs, y_batch)
-#    total_loss += loss.item()
-#
-#    # Convertimos lo que tira logits a 0 o 1 usando una sigmoide truncada
-#    preds = torch.sigmoid(outputs) >= 0.5
-#    aciertos += (preds.float() == y_batch).sum().item()
-#    total += y_batch.size(0) #cantidad de filas del batch
-#
-#acc = aciertos / total
-#avg_loss = total_loss / len(train_loader)
-#print(f"TEST : , Loss: {avg_loss:.4f}, Accuracy: {acc:.4f}")
