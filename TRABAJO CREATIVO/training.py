@@ -1,9 +1,11 @@
 from features import Features
 import torch
 import torch.nn as nn
+import matplotlib.pyplot as plt
 from torchmetrics import F1Score
 from torch.utils.data import TensorDataset, DataLoader
 from red import CNN
+import numpy as np
 #-----------------------------------ENTRENAMIENTO-----------------------------------#
 
 #Features Engineering
@@ -50,11 +52,14 @@ def train(f: Features, modelObj, model_save_path: str):
     criterion = nn.BCEWithLogitsLoss()
     #Probar con criterion con accuracy
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-    target_acc = 0.90   # detener si llegamos al 95%
-    tol = 0.005
+    target_acc = 0.90   # detener si llegamos al 90%
+    tol = 0.001
     last_acc = 0
+    max_epoch = 0
+    acc_plot = np.array([])
     for epoch in range(50):
         model.train()
+        max_epoch += 1
         total_loss = 0
         aciertos = 0
         total = 0
@@ -78,6 +83,7 @@ def train(f: Features, modelObj, model_save_path: str):
             total += y_batch.size(0) #cantidad de filas del batch
 
         acc = aciertos / total
+        acc_plot = np.append(acc_plot,acc)
         avg_loss = total_loss / len(train_loader)
         print(f"Epoch {epoch+1}, Loss: {avg_loss:.4f}, Accuracy: {acc:.4f}")
         
@@ -94,3 +100,13 @@ def train(f: Features, modelObj, model_save_path: str):
     # Guardamos el modelo
     # r'TRABAJO CREATIVO/model.model'
     torch.save(model.state_dict(), model_save_path)
+
+    #Graficos : 
+    x = np.linspace(1,max_epoch,len(acc_plot))
+    fig, ax = plt.subplots()
+    ax.plot(x, acc_plot, markeredgewidth=2)
+    plt.xlabel("Epocas")
+    plt.ylabel("Accuracy")
+    plt.title("Evolución de la accuracy durante el entrenamiento")
+    plt.grid(True)
+    plt.show()

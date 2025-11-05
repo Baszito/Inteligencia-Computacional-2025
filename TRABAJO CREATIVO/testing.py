@@ -2,7 +2,6 @@ from features import Features
 import torch
 import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
-from torchmetrics import F1Score
 from features import Features
 
 #Preparacion de los datos para training
@@ -49,34 +48,37 @@ def test(f: Features, modelObj, model_path: str):
     #-----------------------------------EVALUACION-----------------------------------#
     criterion = nn.BCEWithLogitsLoss()
     model.eval() # Capas como el Dropout (Útil para entrenar) no se toman en cuenta.
-    total_loss = 0
-    aciertos = 0
-    total = 0
+    total_loss = 0 #para medir el BCE
 
-    preds_l = []
-    y_l = []
+    with torch.no_grad():
+        total_loss = 0.0
+        TP = 0 #Verdaderos positivos
+        FP = 0 #Falsos positivos
+        TN = 0 #Verdaderos negativos
+        FN = 0 #Falsos negativos
 
-    with torch.no_grad():   
         for x_batch, y_batch in test_loader:
             x_batch, y_batch = x_batch.to(device), y_batch.to(device)
-            outputs = model(x_batch)              
+            outputs = model(x_batch)
             loss = criterion(outputs, y_batch)
             total_loss += loss.item()
 
-            # Convertimos lo que tira logits a 0 o 1 usando una sigmoide truncada
-            preds = torch.sigmoid(outputs) >= 0.5
-            preds_l = preds_l + preds.tolist()
-            y_l = y_l + y_batch.tolist()
-            aciertos += (preds.float() == y_batch).sum().item()
-            total += y_batch.size(0) #cantidad de filas del batch
-            
-    #Medida de accuracy
-    acc = aciertos / total
-    avg_loss = total_loss / len(test_loader)
-    print(f"TEST : , Loss: {avg_loss:.4f}, Accuracy: {acc:.4f}")
+            # Convertimos logits a 0 o 1
+            preds = (torch.sigmoid(outputs) >= 0.5).float()
 
+            # Contadores para TP,FP,TN,FN
+            TP += ((preds == 1) & (y_batch == 1)).sum().item()
+            FP += ((preds == 1) & (y_batch == 0)).sum().item()
+            TN += ((preds == 0) & (y_batch == 0)).sum().item()
+            FN += ((preds == 0) & (y_batch == 1)).sum().item()
 
-    # Medida de F1
-    f1_binary = F1Score(task="binary")
-    score_binary = f1_binary(torch.tensor(preds_l), torch.tensor(y_l))
-    print("F1 Score: " + str(score_binary))
+    #Métricas
+    accuracy = (TP + TN)/(TP+TN+FP+FN)
+    precision = TP / (TP + FP)
+    recall = TP / (TP + FN)
+    f1 = (2*recall*precision)/(recall+precision)
+    print(f"BCE promedio: {total_loss / len(test_loader):.4f}")
+    print(f"Accuracy: {accuracy:.4f}")
+    print(f"Precision: {precision:.4f}")
+    print(f"Recall: {recall:.4f}")
+    print(f"F1-score: {f1:.4f}")
