@@ -12,6 +12,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
 
+<<<<<<< Updated upstream
 #Dataset Spiltting
 
 noStopWordsBAND = True
@@ -30,18 +31,44 @@ class Features:
         #print(X_trn)
         
         self.matriz_embedding = matriz_embedding.to_numpy()
+=======
+#Ingeniera de caracteristicas
+class Features:
+    def __init__(self, data, embedding_matrix):
+        data_stopwords = data
+        X = data_stopwords[['news_headline']]
+        y = data_stopwords[['reliable']]
+>>>>>>> Stashed changes
 
-        #Tokenization and Padding
+        # Dividimos en train y test (90% / 10%)
+        X_trn, X_tst, y_trn, y_tst = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=42)
+
+        # Dividimos train en train y validation (80% / 20%)
+        X_trn, X_val, y_trn, y_val = train_test_split(X_trn, y_trn, test_size=0.2, shuffle=True, random_state=42)
+
+        # Guardamos referencias
+        self.y_trn = y_trn.to_numpy()
+        self.y_val = y_val.to_numpy()
+        self.y_tst = y_tst.to_numpy()
+
+        # Guardamos la matriz de embeddings
+        self.matriz_embedding = embedding_matrix.to_numpy()
+
+        # Tokenización y padding
         self.max_len = max([len(str(text).split()) for text in X['news_headline']])
-        tokenizer = Tokenizer(num_words=self.max_len,oov_token='<OOV>')
+        tokenizer = Tokenizer(num_words=self.max_len, oov_token='<OOV>')
         tokenizer.fit_on_texts(X['news_headline'].tolist())
-        X_trn_sequences=tokenizer.texts_to_sequences(X_trn['news_headline'].tolist())
+
+        # Entrenamiento
+        X_trn_sequences = tokenizer.texts_to_sequences(X_trn['news_headline'].tolist())
         self.X_trn_padded = pad_sequences(X_trn_sequences, maxlen=self.max_len, padding='post', truncating='post')
-        X_tst_sequences=tokenizer.texts_to_sequences(X_tst['news_headline'].tolist())
+
+        # Validación
+        X_val_sequences = tokenizer.texts_to_sequences(X_val['news_headline'].tolist())
+        self.X_val_padded = pad_sequences(X_val_sequences, maxlen=self.max_len, padding='post', truncating='post')
+
+        # Test
+        X_tst_sequences = tokenizer.texts_to_sequences(X_tst['news_headline'].tolist())
         self.X_tst_padded = pad_sequences(X_tst_sequences, maxlen=self.max_len, padding='post', truncating='post')
-
-        self.y_trn = self.y_trn.to_numpy()
-        self.y_tst = self.y_tst.to_numpy()
-
 
 
