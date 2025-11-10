@@ -69,9 +69,9 @@ class Features:
             # Entrenamiento
             enc_trn = tokenizer(
                 X_trn['news_headline'].tolist(),
-                padding=True,
+                padding='max_length',
                 truncation=True,
-                #max_length=self.max_len,
+                max_length=self.max_len,
                 return_tensors='pt'  # también puede ser 'pt' o 'tf'
             )
             self.X_trn_padded = enc_trn['input_ids']
@@ -79,9 +79,9 @@ class Features:
             # Validación
             enc_val = tokenizer(
                 X_val['news_headline'].tolist(),
-                padding=True,
+                padding='max_length',
                 truncation=True,
-                #max_length=self.max_len,
+                max_length=self.max_len,
                 return_tensors='pt'
             )
             self.X_val_padded = enc_val['input_ids']
@@ -89,9 +89,9 @@ class Features:
             # Test
             enc_tst = tokenizer(
                 X_tst['news_headline'].tolist(),
-                padding=True,
+                padding='max_length',
                 truncation=True,
-                #max_length=self.max_len,
+                max_length=self.max_len,
                 return_tensors='pt'
             )
             self.X_tst_padded = enc_tst['input_ids']
