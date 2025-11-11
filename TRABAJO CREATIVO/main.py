@@ -12,7 +12,7 @@ from transformers import AutoModelForSequenceClassification
 from transformers import AutoTokenizer, DataCollatorWithPadding
 import evaluate
 from datasets import load_dataset
-import torch
+#import torch
 
 glove_path = 'TRABAJO CREATIVO/glove.twitter.27B.100d.txt'
 dataset_path = 'TRABAJO CREATIVO/SherLockFakenewsNetOriginal.csv'
@@ -38,8 +38,9 @@ dataset = pd.read_csv(dataset_preprocessed_path)
 embedding_matrix = pd.read_csv(embedding_matrix_path)
 print("Dataset y matriz de embeddings cargadas correctamente.")
 
+print("Comenzando Features")
 features = Features(dataset, embedding_matrix, tokenizer)
-
+print("Finalizó Features")
 # Si el modelo no existe, lo entrenamos
 if not os.path.exists(cnn_path):
     print("No existe el modelo. Se procede a entrenarlo")

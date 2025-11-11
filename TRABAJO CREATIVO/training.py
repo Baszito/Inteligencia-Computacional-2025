@@ -10,6 +10,7 @@ import numpy as np
 
 #Features Engineering
 #f = Features() 
+
 def train(f: Features, modelObj, model_save_path: str):
     #Configuracion, para mandar todo el modelo a la GPU
     if torch.cuda.is_available():

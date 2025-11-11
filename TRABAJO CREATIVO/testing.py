@@ -14,7 +14,7 @@ def test(f: Features, modelObj, model_path: str):
     print(f"Using {device} device")
 
     # max_len es la cantidad de tokens que tiene cada secuencia con padding incluido.
-    max_len = len(f.X_trn_padded[0, :])
+    #max_len = len(f.X_trn_padded[0, :])
 
     #Transformar los datos del Features Engineering al formato de TORCH (Tensores)
     x_trn_padded_torch = torch.from_numpy(f.X_trn_padded)

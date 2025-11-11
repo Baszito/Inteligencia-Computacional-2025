@@ -40,7 +40,8 @@ class Features:
         # Guardamos la matriz de embeddings
         self.matriz_embedding = embedding_matrix.to_numpy()
 
-        self.max_len = get_max_len(X)
+        #self.max_len = get_max_len(X)}
+        self.max_len = 200
         print("Max Len: ", self.max_len)
 
         # Tokenización y padding
@@ -52,6 +53,9 @@ class Features:
             # Entrenamiento
             X_trn_sequences = tokenizer.texts_to_sequences(X_trn['news_headline'].tolist())
             self.X_trn_padded = pad_sequences(X_trn_sequences, maxlen=self.max_len, padding='post', truncating='post')
+            #print(type(X_trn_sequences))
+            #print(X_trn_sequences)
+
 
             # Validación
             X_val_sequences = tokenizer.texts_to_sequences(X_val['news_headline'].tolist())
@@ -67,45 +71,36 @@ class Features:
             #tokenizer.fit_on_texts(X['news_headline'].tolist())
 
             # Entrenamiento
+            print("1.")
             enc_trn = tokenizer(
                 X_trn['news_headline'].tolist(),
                 padding='max_length',
                 truncation=True,
                 max_length=self.max_len,
-                return_tensors='pt'  # también puede ser 'pt' o 'tf'
+                return_tensors='np'  # también puede ser 'pt' o 'tf'
             )
             self.X_trn_padded = enc_trn['input_ids']
-
+            print("2.")
             # Validación
             enc_val = tokenizer(
                 X_val['news_headline'].tolist(),
                 padding='max_length',
                 truncation=True,
                 max_length=self.max_len,
-                return_tensors='pt'
+                return_tensors='np'
             )
             self.X_val_padded = enc_val['input_ids']
-
+            print("3.")
             # Test
             enc_tst = tokenizer(
                 X_tst['news_headline'].tolist(),
                 padding='max_length',
                 truncation=True,
                 max_length=self.max_len,
-                return_tensors='pt'
+                return_tensors='np'
             )
             self.X_tst_padded = enc_tst['input_ids']
-
-            # Entrenamiento
-            #X_trn_sequences = tokenizer.texts_to_sequences(X_trn['news_headline'].tolist())
-            #self.X_trn_padded = pad_sequences(X_trn_sequences, maxlen=self.max_len, padding='post', truncating='post')
-#
-            ## Validación
-            #X_val_sequences = tokenizer.texts_to_sequences(X_val['news_headline'].tolist())
-            #self.X_val_padded = pad_sequences(X_val_sequences, maxlen=self.max_len, padding='post', truncating='post')
-#
-            ## Test
-            #X_tst_sequences = tokenizer.texts_to_sequences(X_tst['news_headline'].tolist())
-            #self.X_tst_padded = pad_sequences(X_tst_sequences, maxlen=self.max_len, padding='post', truncating='post')
+            print("Finalizó Features Interno.")
+            print(self.X_trn_padded)
 
 
